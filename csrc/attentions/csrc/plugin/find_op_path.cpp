@@ -102,6 +102,12 @@ bool ValidateVendorsConfigFile(const std::string& configFile)
 std::string ReadLoadPriorityLine(const std::string& configFile)
 {
     std::ifstream ifs(configFile);
+
+    if (!ifs.is_open()) {
+        std::cerr << "Error: Cannot open " << configFile << std::endl;
+        return "";
+    }
+ 
     std::string line;
     while (std::getline(ifs, line)) {
         if (line.find("load_priority=") == 0) {
