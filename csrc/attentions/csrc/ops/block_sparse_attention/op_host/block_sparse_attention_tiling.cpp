@@ -2996,7 +2996,7 @@ ge::graphStatus BlockSparseAttentionTiling::RunBigKernelTilingWithParams(Context
                OPS_REPORT_VECTOR_INNER_ERR(contextKeyParams.opName, "query key value dimNums check failed!"),
                return ge::GRAPH_FAILED);
 
-    OPS_ERR_IF((Check_D(contextKeyParams) != ge::GRAPH_SUCCESS),
+    OPS_ERR_IF((CheckD(contextKeyParams) != ge::GRAPH_SUCCESS),  // codespell:ignore
                OPS_REPORT_VECTOR_INNER_ERR(contextKeyParams.opName,
                                            "layout BSH, BSND, BNSD, BNSD_BSND, queryD keyD valueD must be equal!"),
                return ge::GRAPH_FAILED);
@@ -4137,7 +4137,7 @@ ge::graphStatus BlockSparseAttentionTiling::CheckDimNums(ContextParamsForBSATili
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus BlockSparseAttentionTiling::Check_D(ContextParamsForBSATiling &contextKeyParams)
+ge::graphStatus BlockSparseAttentionTiling::CheckD(ContextParamsForBSATiling &contextKeyParams)  // codespell:ignore
 {
     std::string layoutStr(contextKeyParams.layout);
     if (layoutStr == "TND" || layoutStr == "NTD_TND" || layoutStr == "SH" || layoutStr == "NSD") {

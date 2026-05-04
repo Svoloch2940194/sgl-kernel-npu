@@ -8,14 +8,14 @@
 # ======================================================================================================================
 
 if (alog_FOUND)
-    message(STATUS "Package alog has been found.")
+    message(STATUS "Package alog has been found.") # codespell:ignore
     return()
 endif()
 
 set(_cmake_targets_defined "")
 set(_cmake_targets_not_defined "")
 set(_cmake_expected_targets "")
-foreach(_cmake_expected_target IN ITEMS slog alog alog_headers)
+foreach(_cmake_expected_target IN ITEMS slog alog alog_headers) # codespell:ignore
     list(APPEND _cmake_expected_targets "${_cmake_expected_target}")
     if(TARGET "${_cmake_expected_target}")
         list(APPEND _cmake_targets_defined "${_cmake_expected_target}")
@@ -61,19 +61,12 @@ find_library(alog_SHARED_LIBRARY
     NO_CMAKE_FIND_ROOT_PATH)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(alog
-    FOUND_VAR
-        alog_FOUND
-    REQUIRED_VARS
-        _INCLUDE_DIR
-        slog_SHARED_LIBRARY
-        alog_SHARED_LIBRARY
-)
+find_package_handle_standard_args(alog FOUND_VAR alog_FOUND REQUIRED_VARS _INCLUDE_DIR slog_SHARED_LIBRARY alog_SHARED_LIBRARY) # codespell:ignore
 
 if(alog_FOUND)
     set(alog_INCLUDE_DIR "${_INCLUDE_DIR}")
     include(CMakePrintHelpers)
-    message(STATUS "Variables in alog module:")
+    message(STATUS "Variables in alog module:") # codespell:ignore
     cmake_print_variables(alog_INCLUDE_DIR)
     cmake_print_variables(slog_SHARED_LIBRARY)
     cmake_print_variables(alog_SHARED_LIBRARY)
@@ -85,12 +78,8 @@ if(alog_FOUND)
         IMPORTED_LOCATION "${slog_SHARED_LIBRARY}"
     )
 
-    add_library(alog SHARED IMPORTED)
-    set_target_properties(alog PROPERTIES
-        INTERFACE_COMPILE_DEFINITIONS "LOG_CPP;PROCESS_LOG"
-        INTERFACE_LINK_LIBRARIES "alog_headers"
-        IMPORTED_LOCATION "${alog_SHARED_LIBRARY}"
-    )
+    add_library(alog SHARED IMPORTED) # codespell:ignore
+    set_target_properties(alog PROPERTIES INTERFACE_COMPILE_DEFINITIONS "LOG_CPP;PROCESS_LOG" INTERFACE_LINK_LIBRARIES "alog_headers" IMPORTED_LOCATION "${alog_SHARED_LIBRARY}") # codespell:ignore
 
     add_library(alog_headers INTERFACE IMPORTED)
     set_target_properties(alog_headers PROPERTIES
@@ -101,9 +90,7 @@ if(alog_FOUND)
     cmake_print_properties(TARGETS slog
         PROPERTIES INTERFACE_COMPILE_DEFINITIONS INTERFACE_LINK_LIBRARIES IMPORTED_LOCATION
     )
-    cmake_print_properties(TARGETS alog
-        PROPERTIES INTERFACE_COMPILE_DEFINITIONS INTERFACE_LINK_LIBRARIES IMPORTED_LOCATION
-    )
+    cmake_print_properties(TARGETS alog PROPERTIES INTERFACE_COMPILE_DEFINITIONS INTERFACE_LINK_LIBRARIES IMPORTED_LOCATION) # codespell:ignore
     cmake_print_properties(TARGETS alog_headers
         PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
     )
