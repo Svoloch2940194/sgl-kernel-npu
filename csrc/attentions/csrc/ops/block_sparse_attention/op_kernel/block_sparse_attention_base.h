@@ -613,7 +613,7 @@ __aicore__ inline void BlockSparseAttentionBase<T, U, FORMAT, O, M>::InitTensorS
     softmaxExpSize = tensorSizeTiling->softmaxExpSize;    // Softmax exp UB size
     spmTmpSize = tensorSizeTiling->spmTmpSize;            // SPM temporary size
     scmTmpSize = tensorSizeTiling->scmTmpSize;            // SCM temporary size
-    bmm2ResUbSize = tensorSizeTiling->bmm2ResUbSize;      // Second matric mul result UB size
+    bmm2ResUbSize = tensorSizeTiling->bmm2ResUbSize;      // Second matrix mul result UB size
     tmpMMResBmm2PreUbSize = tensorSizeTiling->tmpMMResBmm2PreUbSize;
     tmpSoftmaxBmm2UbSize = tensorSizeTiling->tmpSoftmaxBmm2UbSize;
     selectSpaceUbSize = tensorSizeTiling->selectSpaceUbSize;

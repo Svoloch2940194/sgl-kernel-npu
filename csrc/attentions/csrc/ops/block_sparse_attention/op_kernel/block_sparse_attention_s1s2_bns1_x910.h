@@ -397,7 +397,7 @@ __aicore__ inline void BlockSparseAttentionS1s2Bns1X910<BSAT>::AllocGlobalResour
 {
     for (int i = 0; i < 2; ++i) {
         this->mmResUb[i] =
-            this->Bmm1Queue.template AllocTensor<computeType>();  // enque deque 仅仅用于SoftmaxResCopyOut
+            this->Bmm1Queue.template AllocTensor<computeType>();  // enqueue deque 仅仅用于SoftmaxResCopyOut
     }
     for (int i = 0; i < 2; ++i) {
         this->bmm1ResCopyInEvent[i] = static_cast<event_t>(GetTPipePtr()->AllocEventID<HardEvent::MTE2_V>());

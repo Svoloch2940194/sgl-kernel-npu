@@ -31,13 +31,13 @@ fi
 if [ -n "$PROJ_ROOT_DIR" ] && [ -d "${PROJ_ROOT_DIR}/csrc/ops" ]; then
     source ${PROJ_ROOT_DIR}/build/build_ops.sh ${PROJ_ROOT_DIR}/build
 elif [ -n "$PROJ_ROOT_DIR" ]; then
-    echo "Waring: The path of custom op operators $PROJ_ROOT_DIR/csrc/ops does not exist."
+    echo "Warning: The path of custom op operators $PROJ_ROOT_DIR/csrc/ops does not exist."
 fi
 
 if [ -n "$PROJ_ROOT_DIR" ] && [ -d "${PROJ_ROOT_DIR}/csrc/plugin" ]; then
     source ${PROJ_ROOT_DIR}/build/build_plugin.sh ${PROJ_ROOT_DIR}/build
 elif [ -n "$PROJ_ROOT_DIR" ]; then
-    echo "Waring: The path of op plugins $PROJ_ROOT_DIR/csrc/plugin does not exist."
+    echo "Warning: The path of op plugins $PROJ_ROOT_DIR/csrc/plugin does not exist."
 fi
 
 clean_build_dirs() {

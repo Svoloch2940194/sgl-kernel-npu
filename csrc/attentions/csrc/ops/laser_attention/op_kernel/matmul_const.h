@@ -25,7 +25,7 @@ constexpr int64_t L1_PINGPONG_BUFFER_LEN = 16384;   // 32 KB
 constexpr int64_t L0C_PINGPONG_BUFFER_LEN = 16384;  // 64 KB
 
 constexpr int32_t BASE_BLOCK_SIZE = 16384;    // BASE_BLOCK shape ：[128 * 128]
-constexpr int32_t BASE_BLOCK_SIDE_LEN = 128;  // BASE_BLOCK  row adn column  size
+constexpr int32_t BASE_BLOCK_SIDE_LEN = 128;  // BASE_BLOCK  row and column  size
 
 constexpr int32_t B16_SIZE = 2;
 constexpr int32_t B32_SIZE = 4;

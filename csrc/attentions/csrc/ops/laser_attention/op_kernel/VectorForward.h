@@ -331,7 +331,7 @@ __aicore__ inline void VectorForward<INPUT_T, IF_BF16, WORKSPACE_T>::Run()
     set_mask_norm();
     set_vector_mask((uint64_t)-1, (uint64_t)-1);
 
-    bool unirow_mode = false;  // ture: 三角阵，一行统一计算 (还未支持末尾tri mask)；false：一行分两个section计算
+    bool unirow_mode = false;  // true: 三角阵，一行统一计算 (还未支持末尾tri mask)；false：一行分两个section计算
 
     UB_FOR_NORMALIZE ub_norm;
     allocate_ubuf_for_norm(&ub_norm);  //  归一化在EXP计算完成之后，这里重新分配UB地址，不会影响rowmax计算

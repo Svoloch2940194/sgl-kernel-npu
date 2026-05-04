@@ -1984,7 +1984,7 @@ void BlockSparseAttentionTiling::Align(uint32_t &num)
     num = (num + typeByteNum - 1) / typeByteNum * typeByteNum;
 }
 
-// Code for ut, no pratical to use.
+// Code for ut, no practical to use.
 ge::graphStatus BlockSparseAttentionTiling::GetBasicShape310P(uint32_t &b, uint32_t &bKV, uint32_t &s, uint32_t &h,
                                                               uint32_t &seqInnerSize,
                                                               const gert::StorageShape *queryShape,
@@ -2696,7 +2696,7 @@ bool BlockSparseAttentionTiling::IsBasicBlockInSoftMax(const ge::Shape &shape)
     }
 
     int64_t lastAxis = shape.GetDim(shape.GetDimNum() - 1);
-    // last axis should be less than 2048 and fullfil 64 times
+    // last axis should be less than 2048 and fulfil 64 times
     int64_t basicLastAxis = 64;
     int64_t lastAxisNum = 2048;
     if (lastAxis > lastAxisNum || lastAxis % basicLastAxis != 0) {
@@ -2996,7 +2996,7 @@ ge::graphStatus BlockSparseAttentionTiling::RunBigKernelTilingWithParams(Context
                OPS_REPORT_VECTOR_INNER_ERR(contextKeyParams.opName, "query key value dimNums check failed!"),
                return ge::GRAPH_FAILED);
 
-    OPS_ERR_IF((CheckD(contextKeyParams) != ge::GRAPH_SUCCESS),
+    OPS_ERR_IF((Check_D(contextKeyParams) != ge::GRAPH_SUCCESS),
                OPS_REPORT_VECTOR_INNER_ERR(contextKeyParams.opName,
                                            "layout BSH, BSND, BNSD, BNSD_BSND, queryD keyD valueD must be equal!"),
                return ge::GRAPH_FAILED);
@@ -3015,7 +3015,7 @@ ge::graphStatus BlockSparseAttentionTiling::RunBigKernelTilingWithParams(Context
     // refers to high accuracy (without using approximate calculations).
     innerPrecise = innerPrecisePtr ? *innerPrecisePtr : HIGH_PERFORMANCE;
     // 0: Invalid plural number; 4: Invalid if greater than or equal to 4;
-    // 0,1,2,3 are effective values for innerPrecise; 4 for approxiate
+    // 0,1,2,3 are effective values for innerPrecise; 4 for approximate
     if (innerPrecise > 4) {
         OPS_LOG_W(contextKeyParams.opName, "innerPrecise [%lu] should be 0,1,2,3,4 please check.", innerPrecise);
     }
@@ -3938,7 +3938,7 @@ ge::graphStatus BlockSparseAttentionTiling::RunBigKernelTilingWithParams(Context
               "inputLayout is %d, innerPrecise is %lu, "
               "scaleValue is %f, preTokens is %ld, nextTokens is %ld",
               static_cast<int>(inputLayout), innerPrecise, *scaleValue, *preTokens, *nextTokens);
-    // Infering whether the tiling mode is D-axis split, S2 full load, CV diff,
+    // Inferring whether the tiling mode is D-axis split, S2 full load, CV diff,
     // and whether to use the matmul norm template.
     InferTilingMod(contextKeyParams, actualSeqLengths, actualSeqLengthsKV, lenDims, hDivN, tmpS2, sparseModeVal);
 
@@ -4137,7 +4137,7 @@ ge::graphStatus BlockSparseAttentionTiling::CheckDimNums(ContextParamsForBSATili
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus BlockSparseAttentionTiling::CheckD(ContextParamsForBSATiling &contextKeyParams)
+ge::graphStatus BlockSparseAttentionTiling::Check_D(ContextParamsForBSATiling &contextKeyParams)
 {
     std::string layoutStr(contextKeyParams.layout);
     if (layoutStr == "TND" || layoutStr == "NTD_TND" || layoutStr == "SH" || layoutStr == "NSD") {
@@ -4290,7 +4290,7 @@ ge::graphStatus BlockSparseAttentionTiling::CheckBaseApiAlibiMask(ContextParamsF
                return ge::GRAPH_FAILED);
     bool isAlibiCompress = (pseShiftShape->GetStorageShape().GetDim(maskDim - NUM_1) == LONG_SEQ_LEN) &&
                            (pseShiftShape->GetStorageShape().GetDim(maskDim - NUM_2) != LONG_SEQ_LEN);
-    if (maskDim == 2) {  // 2: invaild maskDim
+    if (maskDim == 2) {  // 2: invalid maskDim
         OPS_ERR_IF(CheckBaseApiMaskVal(contextKeyParams, pseShiftShape,
                                        {{LONG_SEQ_ALIBI_LEN, LONG_SEQ_ALIBI_LEN}, "alibi dim 2"}) != ge::GRAPH_SUCCESS,
                    OPS_REPORT_VECTOR_INNER_ERR(contextKeyParams.opName, "Alibi long seq mask invalid."),
@@ -4531,10 +4531,10 @@ ge::graphStatus BlockSparseAttentionTiling::CheckBaseApiPse(ContextParamsForBSAT
 void BlockSparseAttentionTiling::SetMaskSize(const gert::StorageShape *attenMaskShape,
                                              BlockSparseAttentionTilingData &tilingData)
 {
-    auto maskKVsSize = 2048;  // 2048 : default the last frist dim.
+    auto maskKVsSize = 2048;  // 2048 : default the last first dim.
     auto maskQsSize = 2048;   // 2048 : default the last second dim.
     if (attenMaskShape != nullptr) {
-        // 1: last frist dim
+        // 1: last first dim
         maskKVsSize = attenMaskShape->GetStorageShape().GetDim(attenMaskShape->GetStorageShape().GetDimNum() - 1);
         // 2: last second dim
         maskQsSize = attenMaskShape->GetStorageShape().GetDim(attenMaskShape->GetStorageShape().GetDimNum() - 2);

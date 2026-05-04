@@ -175,7 +175,7 @@ class MindIELogFileHandler(BaseRotatingHandler):
         cur_time_str = self._get_time_str(cur_log_name)
         self._history_files.append((self._cur_log_file, cur_time_str))
 
-        # delete oldest file by file number constaint
+        # delete oldest file by file number constraint
         self._delete_file_by_number()
 
         # delete oldest file by time

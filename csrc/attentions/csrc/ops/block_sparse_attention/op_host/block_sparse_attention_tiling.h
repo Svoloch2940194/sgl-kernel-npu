@@ -637,7 +637,7 @@ protected:
                                              int32_t sInnerFactorTmp) const;
     ge::graphStatus CheckIOType(ContextParamsForBSATiling &contextKeyParams, BlockSparseAttentionTilingData &tilingData,
                                 int32_t &outputDataTypeSize);
-    ge::graphStatus CheckD(ContextParamsForBSATiling &contextKeyParams);
+    ge::graphStatus Check_D(ContextParamsForBSATiling &contextKeyParams);
     ge::graphStatus CheckDimNums(ContextParamsForBSATiling &contextKeyParams);
     ge::graphStatus CheckMaskType(ContextParamsForBSATiling &contextKeyParams,
                                   BlockSparseAttentionTilingData &tilingData, uint32_t &maskElemSize);
