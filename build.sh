@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-BUILD_ATTENTIONS_MODULE="ON"
 BUILD_DEEPEP_MODULE="ON"
 BUILD_DEEPEP_OPS="ON"
 BUILD_KERNELS_MODULE="ON"
@@ -141,25 +140,6 @@ function build_kernels()
     cd -
 }
 
-function create_deepep_cmake()
-{
-    cd csrc || exit
-    chmod +x deepep_cmake_build.sh
-    chmod +x deepep/build.sh
-    chmod +x deepep/compile_ascend_proj.sh
-    echo "${FUNCNAME[0]}:./deepep_cmake_build.sh all $SOC_VERSION"
-    ./deepep_cmake_build.sh all $SOC_VERSION
-
-    if [[ "$BUILD_DEEPEP_OPS" == "ON" ]]; then
-        echo "./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep"
-        bash ./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep
-    else
-        echo "./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep2"
-        bash ./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep2
-    fi
-    cd -
-}
-
 function build_deepep_kernels()
 {
     if [[ "$ONLY_BUILD_DEEPEP_ADAPTER_MODULE" == "ON" ]]; then return 0; fi
@@ -205,17 +185,23 @@ function build_memory_saver()
     cd -
 }
 
-function build_attentions_kernels() 
+function create_deepep_cmake()
 {
-    CUSTOM_OPP_DIR="${CURRENT_DIR}/python/attentions/attentions"
-    KERNEL_DIR="csrc/attentions/build"
+    cd csrc || exit
+    chmod +x deepep_cmake_build.sh
+    chmod +x deepep/build.sh
+    chmod +x deepep/compile_ascend_proj.sh
+    echo "${FUNCNAME[0]}:./deepep_cmake_build.sh all $SOC_VERSION"
+    ./deepep_cmake_build.sh all $SOC_VERSION
 
-    cd "$KERNEL_DIR" || exit
-
-    echo "run build attentions library"
-
-    chmod +x build.sh
-    ./build.sh
+    if [[ "$BUILD_DEEPEP_OPS" == "ON" ]]; then
+        echo "./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep"
+        bash ./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep
+    else
+        echo "./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep2"
+        bash ./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep2
+    fi
+    cd -
 }
 
 function make_deepep_package()
@@ -244,6 +230,19 @@ function make_sgl_kernel_npu_package()
     cd -
 }
 
+function build_attentions_kernels() 
+{
+    CUSTOM_OPP_DIR="${CURRENT_DIR}/python/attentions/attentions"
+    KERNEL_DIR="csrc/attentions/build"
+
+    cd "$KERNEL_DIR" || exit
+
+    echo "run build attentions library"
+
+    chmod +x build.sh
+    ./build.sh
+}
+
 function make_attentions_package() {
     cd python/attentions || exit
 
@@ -258,8 +257,8 @@ function make_attentions_package() {
 function main()
 {
     create_deepep_cmake
-    build_kernels
     build_attentions_kernels
+    build_kernels
     build_deepep_kernels
     if pip3 show wheel;then
         echo "wheel has been installed"
@@ -273,10 +272,10 @@ function main()
     if [[ "$BUILD_KERNELS_MODULE" == "ON" ]]; then
         make_sgl_kernel_npu_package
     fi
-
     if [[ "$BUILD_ATTENTIONS_MODULE" == "ON" ]]; then
         make_attentions_package
     fi
+
 
 }
 
