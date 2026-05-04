@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -9,7 +9,6 @@
  * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
  * See the Mulan PSL v2 for more details.
  */
-
 
 #include <queue>
 #include <vector>
@@ -68,8 +67,8 @@ constexpr uint32_t DIM3_INDEX = 3;
 uint64_t BASE_TILING_KEY = 1000000000000000000;  // 默认 TILING_KEY
 
 void PromptFlashAttentionSplitNSNew(SparseBlockEstimateTilingData &tiling, uint32_t curCoreNum,
-    std::vector<int64_t> &actualSeqLengths, std::vector<int64_t> &actualSeqLengthsKV, int64_t actualSharedPrefixLen,
-    bool useBalanceTiling)
+                                    std::vector<int64_t> &actualSeqLengths, std::vector<int64_t> &actualSeqLengthsKV,
+                                    int64_t actualSharedPrefixLen, bool useBalanceTiling)
 {
     SparseBlockEstimateSeqParams *seqParams = &tiling.sparseBlockEstimateSeqParams;
 
@@ -185,8 +184,8 @@ void PromptFlashAttentionSplitNSNew(SparseBlockEstimateTilingData &tiling, uint3
     tiling.set_actualCoreNums(actualCoreNums);
 }
 
-static ge::graphStatus SetDataShape(
-    SparseBlockEstimateTilingData &tiling, gert::TilingContext *context, const string &layoutStr)
+static ge::graphStatus SetDataShape(SparseBlockEstimateTilingData &tiling, gert::TilingContext *context,
+                                    const string &layoutStr)
 {
     uint32_t batchSize;
     uint32_t dim;
@@ -305,16 +304,16 @@ ge::graphStatus SparseBlockEstimateTilingFunc(gert::TilingContext *context)
     tiling.set_stride(stride);
 
     while (tiling.get_seqLenK() < stride * db * SINGLE_CORE_NBASE) {
-        SINGLE_CORE_NBASE /= 2; // 2：数据减半
+        SINGLE_CORE_NBASE /= 2;  // 2：数据减半
     }
-    SINGLE_CORE_NBASE = std::max(SINGLE_CORE_NBASE, 512); // 512: 下限阈值
+    SINGLE_CORE_NBASE = std::max(SINGLE_CORE_NBASE, 512);  // 512: 下限阈值
 
-    auto tasks = tiling.get_headNumQ() * tiling.get_seqLenQ(); // 6038
+    auto tasks = tiling.get_headNumQ() * tiling.get_seqLenQ();  // 6038
     if (coresAiv == 0) {
         return ge::GRAPH_FAILED;
     }
-    tasks = (tasks + coresAiv - 1) / coresAiv; // 151
-    tasks = (tasks + sparseSize -1) / sparseSize; // 2
+    tasks = (tasks + coresAiv - 1) / coresAiv;      // 151
+    tasks = (tasks + sparseSize - 1) / sparseSize;  // 2
     SINGLE_CORE_MBASE = std::min(SINGLE_CORE_MBASE, int(tasks * sparseSize / stride));
     tiling.set_sOuterFactor(SINGLE_CORE_MBASE);
     tiling.set_sInnerFactor(SINGLE_CORE_NBASE);
@@ -324,9 +323,8 @@ ge::graphStatus SparseBlockEstimateTilingFunc(gert::TilingContext *context)
         qDataType == ge::DT_BF16 ? matmul_tiling::DataType::DT_BF16 : matmul_tiling::DataType::DT_FLOAT16;
     cubeTiling.SetAType(TPosition::GM, CubeFormat::ND, mmInputType, false);
     cubeTiling.SetBType(TPosition::GM, CubeFormat::ND, mmInputType, true);
-    cubeTiling.SetCType(TPosition::GM,
-        CubeFormat::ND_ALIGN,
-        matmul_tiling::DataType::DT_FLOAT);  // 不管input是fp16还是bf16 保持fp 32不动
+    cubeTiling.SetCType(TPosition::GM, CubeFormat::ND_ALIGN,
+                        matmul_tiling::DataType::DT_FLOAT);  // 不管input是fp16还是bf16 保持fp 32不动
     uint32_t seqLenQDivStride = (tiling.get_seqLenQ() + stride - 1) / stride;
     uint32_t seqLenKDivStride = (tiling.get_seqLenK() + stride - 1) / stride;
     auto dim = tiling.get_dim();
@@ -334,12 +332,12 @@ ge::graphStatus SparseBlockEstimateTilingFunc(gert::TilingContext *context)
     cubeTiling.SetShape(SINGLE_CORE_MBASE, SINGLE_CORE_NBASE, dim * stride);
     cubeTiling.SetBias(false);
     cubeTiling.SetBufferSpace(-1, -1, -1);
-    cubeTiling.SetFixSplit(std::min(SINGLE_CORE_MBASE, 128), std::min(SINGLE_CORE_NBASE, 128), 128); // 128: 上限阈值
+    cubeTiling.SetFixSplit(std::min(SINGLE_CORE_MBASE, 128), std::min(SINGLE_CORE_NBASE, 128), 128);  // 128: 上限阈值
 
     if (cubeTiling.GetTiling(tiling.cubeTilingData) == -1) {  // Get matmul tiling.
         return ge::GRAPH_FAILED;
     }
-    tiling.cubeTilingData.set_dbL0C(2); // 2: db
+    tiling.cubeTilingData.set_dbL0C(2);  // 2: db
 
     context->SetBlockDim(coresAic);
     tiling.set_coreNumAic(coresAic);
@@ -382,8 +380,8 @@ ge::graphStatus SparseBlockEstimateTilingFunc(gert::TilingContext *context)
         }
     }
     int64_t actualSharedPrefixLen = 0;
-    PromptFlashAttentionSplitNSNew(
-        tiling, coresAiv, actualSeqLengths, actualSeqLengthsKV, actualSharedPrefixLen, useBalanceTiling);
+    PromptFlashAttentionSplitNSNew(tiling, coresAiv, actualSeqLengths, actualSeqLengthsKV, actualSharedPrefixLen,
+                                   useBalanceTiling);
 
     tiling.SaveToBuffer(context->GetRawTilingData()->GetData(), context->GetRawTilingData()->GetCapacity());
     context->GetRawTilingData()->SetDataSize(tiling.GetDataSize());
@@ -391,7 +389,7 @@ ge::graphStatus SparseBlockEstimateTilingFunc(gert::TilingContext *context)
 
     size_t userWorkspaceSize =
         coresAiv * (SINGLE_CORE_MBASE * sizeof(float) * (SINGLE_CORE_NBASE + 32) * (db * 2 /* first reduce + qk */) +
-                       SINGLE_CORE_MBASE * sizeof(half) * db * stride * tiling.get_dim());  // reorderq
+                    SINGLE_CORE_MBASE * sizeof(half) * db * stride * tiling.get_dim());  // reorderq
     size_t systemWorkspaceSize = static_cast<size_t>(ascendcPlatform.GetLibApiWorkSpaceSize());
     size_t *currentWorkspace = context->GetWorkspaceSizes(1);
     currentWorkspace[0] = userWorkspaceSize + systemWorkspaceSize;
@@ -399,14 +397,13 @@ ge::graphStatus SparseBlockEstimateTilingFunc(gert::TilingContext *context)
     return ge::GRAPH_SUCCESS;
 }
 
-ge::graphStatus TilingPrepareForSparseBlockEstimate(gert::TilingParseContext* context)
+ge::graphStatus TilingPrepareForSparseBlockEstimate(gert::TilingParseContext *context)
 {
     return ge::GRAPH_SUCCESS;
 }
-
 
 IMPL_OP_OPTILING(SparseBlockEstimate)
     .Tiling(SparseBlockEstimateTilingFunc)
     .TilingParse<SparseBlockEstimateCompileInfo>(TilingPrepareForSparseBlockEstimate);
 
-} // namespace optiling
+}  // namespace optiling

@@ -43,5 +43,5 @@ TILING_DATA_FIELD_DEF(uint32_t, paramsAlign);
 END_TILING_DATA_DEF;
 REGISTER_TILING_DATA_CLASS(CopyTransposeTilingOp, CopyTransposeTiling)
 
-} // namespace optiling
-#endif // DATA_COPY_TRANSPOSE_TILING_DEF_H_
+}  // namespace optiling
+#endif  // DATA_COPY_TRANSPOSE_TILING_DEF_H_

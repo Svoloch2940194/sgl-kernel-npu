@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -19,10 +19,8 @@
 #include "data_copy_transpose_tiling_def.h"
 #include "data_copy_transpose_tiling.h"
 
-
 #include "register/tilingdata_base.h"
 #include "tiling/tiling_api.h"
-
 
 #include "register/op_def_registry.h"
 
@@ -133,6 +131,6 @@ struct ContextParamsForBSATiling {
     bool hasKeyAntiquantOffset = 0;
 };
 
-} // namespace optiling
+}  // namespace optiling
 
-#endif // BLOCK_SPARSE_ATTENTION_TILING_CONTEXT_H
+#endif  // BLOCK_SPARSE_ATTENTION_TILING_CONTEXT_H

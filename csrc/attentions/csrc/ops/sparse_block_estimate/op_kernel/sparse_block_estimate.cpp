@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -9,7 +9,6 @@
  * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
  * See the Mulan PSL v2 for more details.
  */
-
 
 #include "kernel_operator.h"
 #include "sparse_block_estimate.h"
@@ -25,7 +24,8 @@
     } while (0)
 
 extern "C" __global__ __aicore__ void sparse_block_estimate(GM_ADDR q, GM_ADDR k, GM_ADDR actual_seq_len,
-    GM_ADDR actual_seq_len_kv, GM_ADDR sparse_mask, GM_ADDR sparse_cnt_table, GM_ADDR workspace, GM_ADDR tiling)
+                                                            GM_ADDR actual_seq_len_kv, GM_ADDR sparse_mask,
+                                                            GM_ADDR sparse_cnt_table, GM_ADDR workspace, GM_ADDR tiling)
 {
     TILING_KEY_IS(1000000000000000000);
     TILING_KEY_IS(1000000000000000010);

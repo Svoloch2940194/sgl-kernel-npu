@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -53,6 +53,6 @@ constexpr uint32_t MAX_BATCH = 256U;
 constexpr int64_t MAX_VAR_LEN_SEQ_LEN = 4096L;
 constexpr int64_t BALANCE_LOAD_LIST_SIZE = 8L;
 constexpr int64_t COF[BALANCE_LOAD_LIST_SIZE] = {256, 384, 512, 640, 768, 896, 960, 1024};
-} // namespace optiling
+}  // namespace optiling
 
-#endif // BLOCK_SPARSE_ATTENTION_TILING_CONST_H
+#endif  // BLOCK_SPARSE_ATTENTION_TILING_CONST_H

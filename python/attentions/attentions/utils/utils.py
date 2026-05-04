@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 # Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
-# 
+#
 # You can use this software according to the terms and conditions of the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
@@ -11,12 +11,16 @@
 # See the Mulan PSL v2 for more details.
 
 import importlib
+
 import torch
 
 
 def is_npu_available():
     "Checks if `torch_npu` is installed and potentially if a NPU is in the environment"
-    if importlib.util.find_spec("torch") is None or importlib.util.find_spec("torch_npu") is None:
+    if (
+        importlib.util.find_spec("torch") is None
+        or importlib.util.find_spec("torch_npu") is None
+    ):
         return False
 
     import torch_npu

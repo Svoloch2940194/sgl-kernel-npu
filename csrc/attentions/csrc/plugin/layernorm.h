@@ -17,12 +17,8 @@
 #include <ATen/Tensor.h>
 #include <c10/util/Optional.h>
 
-
-std::tuple<at::Tensor, at::Tensor, at::Tensor> layernorm_npu(
-    const at::Tensor &input,
-    at::IntArrayRef normalized_shape,
-    const c10::optional<at::Tensor> &weight,
-    const c10::optional<at::Tensor> &bias, double eps,
-    int64_t impl_mode
-);
-#endif // LAYER_NORM_H
+std::tuple<at::Tensor, at::Tensor, at::Tensor> layernorm_npu(const at::Tensor &input, at::IntArrayRef normalized_shape,
+                                                             const c10::optional<at::Tensor> &weight,
+                                                             const c10::optional<at::Tensor> &bias, double eps,
+                                                             int64_t impl_mode);
+#endif  // LAYER_NORM_H

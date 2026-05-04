@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -17,12 +17,12 @@
 #include <string>
 #include <tuple>
 
-std::tuple<at::Tensor, at::Tensor> sparse_block_estimate(
-    const at::Tensor &query, const at::Tensor &key,
-    c10::OptionalIntArrayRef actual_seq_lengths,
-    c10::OptionalIntArrayRef actual_seq_lengths_kv,
-    std::string input_layout, int64_t stride, int64_t sparse_size, int64_t num_heads,
-    int64_t num_key_value_heads, double scale_value, double threshold,
-    bool causal, bool keep_sink, bool keep_recent, double row_sparse);
+std::tuple<at::Tensor, at::Tensor> sparse_block_estimate(const at::Tensor &query, const at::Tensor &key,
+                                                         c10::OptionalIntArrayRef actual_seq_lengths,
+                                                         c10::OptionalIntArrayRef actual_seq_lengths_kv,
+                                                         std::string input_layout, int64_t stride, int64_t sparse_size,
+                                                         int64_t num_heads, int64_t num_key_value_heads,
+                                                         double scale_value, double threshold, bool causal,
+                                                         bool keep_sink, bool keep_recent, double row_sparse);
 
-#endif // SPARSE_BLOCK_ESTIMATE_IMPL_H
+#endif  // SPARSE_BLOCK_ESTIMATE_IMPL_H

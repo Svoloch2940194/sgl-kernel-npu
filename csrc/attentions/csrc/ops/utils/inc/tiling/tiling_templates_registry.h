@@ -25,20 +25,21 @@
 
 namespace optiling {
 
-template <typename T> std::unique_ptr<TilingBaseClass> TILING_CLASS(gert::TilingContext *context)
+template <typename T>
+std::unique_ptr<TilingBaseClass> TILING_CLASS(gert::TilingContext *context)
 {
     return std::unique_ptr<T>(new (std::nothrow) T(context));
 }
 
 using TilingClassCase = std::unique_ptr<TilingBaseClass> (*)(gert::TilingContext *);
 
-class TilingCases {
+class TilingCases
+{
 public:
-    explicit TilingCases(std::string op_type) : op_type_(std::move(op_type))
-    {
-    }
+    explicit TilingCases(std::string op_type) : op_type_(std::move(op_type)) {}
 
-    template <typename T> void AddTiling(int32_t priority)
+    template <typename T>
+    void AddTiling(int32_t priority)
     {
         OPS_ERR_IF(cases_.find(priority) != cases_.end(),
                    OPS_REPORT_VECTOR_INNER_ERR(op_type_, "There are duplicate registrations."), return);
@@ -59,7 +60,8 @@ private:
     const std::string op_type_;
 };
 
-class TilingRegistry {
+class TilingRegistry
+{
 public:
     TilingRegistry() = default;
 
@@ -131,16 +133,16 @@ public:
 
 private:
     std::map<std::string, std::shared_ptr<TilingCases>> registry_map_;
-    const std::map<int32_t, TilingClassCase> empty_tiling_case_ {};
+    const std::map<int32_t, TilingClassCase> empty_tiling_case_{};
 };
 
-class Register {
+class Register
+{
 public:
-    explicit Register(std::string op_type) : op_type_(std::move(op_type))
-    {
-    }
+    explicit Register(std::string op_type) : op_type_(std::move(op_type)) {}
 
-    template <typename T> Register &tiling(int32_t priority)
+    template <typename T>
+    Register &tiling(int32_t priority)
     {
         auto tilingCases = TilingRegistry::GetInstance().RegisterOp(op_type_);
         OPS_ERR_IF(tilingCases == nullptr,
@@ -156,7 +158,7 @@ private:
 
 // op_type: 算子名称， class_name: 注册的 tiling 类,
 // priority: tiling 类的优先级, 越小表示优先级越高, 即被选中的概率越大
-#define REGISTER_TILING_TEMPLATE(op_type, class_name, priority)                                                        \
+#define REGISTER_TILING_TEMPLATE(op_type, class_name, priority) \
     static Register VAR_UNUSED##op_type_##class_name##priority_register = Register(op_type).tiling<class_name>(priority)
 
-} // namespace optiling
+}  // namespace optiling

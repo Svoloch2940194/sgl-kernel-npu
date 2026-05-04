@@ -35,7 +35,7 @@ inline void GetDataCopyTransposeTiling(const ge::Shape &dstShape, const ge::Shap
 
     tiling.set_srcShapeB(srcShapeInfo[0]);
     tiling.set_srcShapeN(srcShapeInfo[1]);
-    tiling.set_srcShapeS(srcShapeInfo[2]);  // 2 is index
+    tiling.set_srcShapeS(srcShapeInfo[2]);   // 2 is index
     tiling.set_srcShapeHN(srcShapeInfo[3]);  // 3 is index
     tiling.set_originalShapeNLen(tiling.get_srcShapeHN() * typeSize);
     tiling.set_shapeSHValue(tiling.get_dstShapeS() * tiling.get_dstShapeH());
@@ -44,4 +44,4 @@ inline void GetDataCopyTransposeTiling(const ge::Shape &dstShape, const ge::Shap
     tiling.set_shapeBHValue(tiling.get_dstShapeB() * tiling.get_dstShapeH());
 }
 
-} // namespace optiling
+}  // namespace optiling

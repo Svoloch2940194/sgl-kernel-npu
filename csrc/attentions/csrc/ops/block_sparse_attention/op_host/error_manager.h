@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -36,7 +36,7 @@ int32_t FormatErrorMessage(char_t *str_dst, size_t dst_max, const char_t *format
 void ReportInnerError(const char_t *file_name, const char_t *func, uint32_t line, const std::string error_code,
                       const char_t *format, ...);
 #endif
-} // namespace error_message
+}  // namespace error_message
 
 constexpr size_t const LIMIT_PER_MESSAGE = 1024U;
 
@@ -97,8 +97,8 @@ struct Context {
 
 enum class ErrorMsgMode : uint32_t {
     // 0:内置模式，推理采用线程粒度，训练采用session粒度，1：以进程为粒度
-    INTERNAL_MODE    = 0U,
-    PROCESS_MODE     = 1U,
+    INTERNAL_MODE = 0U,
+    PROCESS_MODE = 1U,
     ERR_MSG_MODE_MAX = 2U
 };
 
@@ -117,9 +117,10 @@ struct ErrorItem {
                (lhs.possible_cause == rhs.possible_cause) && (lhs.solution == rhs.solution);
     }
 };
-} // namespace error_message
+}  // namespace error_message
 
-class ErrorManager {
+class ErrorManager
+{
 public:
     using ErrorItem = error_message::ErrorItem;
     /// @brief Obtain  ErrorManager instance
@@ -207,13 +208,13 @@ private:
         std::string solution;
         std::vector<std::string> arg_list;
     };
-    ErrorManager()  = default;
+    ErrorManager() = default;
     ~ErrorManager() = default;
 
-    ErrorManager(const ErrorManager &)              = delete;
-    ErrorManager(ErrorManager &&)                   = delete;
+    ErrorManager(const ErrorManager &) = delete;
+    ErrorManager(ErrorManager &&) = delete;
     ErrorManager &operator=(const ErrorManager &) & = delete;
-    ErrorManager &operator=(ErrorManager &&) &      = delete;
+    ErrorManager &operator=(ErrorManager &&) & = delete;
 
     int32_t ParseJsonFile(const std::string path);
 
@@ -258,7 +259,7 @@ private:
     thread_local static error_message::Context error_context_;
 
     error_message::ErrorMsgMode error_mode_ = error_message::ErrorMsgMode::INTERNAL_MODE;
-    std::vector<ErrorItem> error_message_process_;    // 进程粒度，所有的errmsg存到同一个vector
-    std::vector<ErrorItem> warning_messages_process_; // 进程粒度，所有的warning msg存到同一个vector
+    std::vector<ErrorItem> error_message_process_;     // 进程粒度，所有的errmsg存到同一个vector
+    std::vector<ErrorItem> warning_messages_process_;  // 进程粒度，所有的warning msg存到同一个vector
 };
-#endif // ERROR_MANAGER_H_
+#endif  // ERROR_MANAGER_H_

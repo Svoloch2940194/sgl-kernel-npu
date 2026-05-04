@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software acc
  * ording to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
@@ -38,7 +38,7 @@ static constexpr uint32_t BSA_ATTR_INPUT_LAYOUT_INDEX = 4;
 static constexpr uint32_t BSA_INPUT_ACTUAL_SEQ_LENGTHS_INDEX = 5;
 static constexpr uint32_t BSA_INPUT_ACTUAL_SEQ_LENGTHS_KV_INDEX = 6;
 static constexpr uint32_t BSA_QUANT_SCALE2_INDEX = 10;
-} // namespace ops
+}  // namespace ops
 namespace ops {
 static ge::graphStatus InferShapeBlockSparseAttention(gert::InferShapeContext *context)
 {
@@ -165,7 +165,7 @@ static ge::graphStatus InferDataTypeBlockSparseAttention(gert::InferDataTypeCont
     }
     // default set q's dtype as BSA's output type
     ge::DataType outputType = context->GetInputDataType(BSA_QUERY_INDEX);
-    if (context->GetOptionalInputDataType(BSA_QUANT_SCALE2_INDEX) != ge::DT_UNDEFINED) { // 10 is quant_scale2's index
+    if (context->GetOptionalInputDataType(BSA_QUANT_SCALE2_INDEX) != ge::DT_UNDEFINED) {  // 10 is quant_scale2's index
         outputType = ge::DT_INT8;
     } else if (outputType == ge::DT_INT8) {
         outputType = ge::DT_FLOAT16;
@@ -179,4 +179,4 @@ IMPL_OP_INFERSHAPE(BlockSparseAttention)
     .InferShape(InferShapeBlockSparseAttention)
     .InferDataType(InferDataTypeBlockSparseAttention)
     .InputsDataDependency({BSA_INPUT_ACTUAL_SEQ_LENGTHS_INDEX, BSA_INPUT_ACTUAL_SEQ_LENGTHS_KV_INDEX});
-} // namespace ops
+}  // namespace ops

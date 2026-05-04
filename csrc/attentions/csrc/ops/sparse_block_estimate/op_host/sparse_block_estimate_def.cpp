@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -12,9 +12,9 @@
 
 #include "register/op_def_registry.h"
 
-
 namespace ops {
-class SparseBlockEstimate : public OpDef {
+class SparseBlockEstimate : public OpDef
+{
 public:
     explicit SparseBlockEstimate(const char *name) : OpDef(name)
     {
@@ -30,14 +30,8 @@ public:
             .ValueDepend(OPTIONAL)
             .DataTypeList({ge::DT_INT64})
             .FormatList({ge::FORMAT_ND});
-        this->Output("sparse_mask")
-            .ParamType(REQUIRED)
-            .DataTypeList({ge::DT_INT8})
-            .FormatList({ge::FORMAT_ND});
-        this->Output("sparse_count_table")
-            .ParamType(REQUIRED)
-            .DataTypeList({ge::DT_INT32})
-            .FormatList({ge::FORMAT_ND});
+        this->Output("sparse_mask").ParamType(REQUIRED).DataTypeList({ge::DT_INT8}).FormatList({ge::FORMAT_ND});
+        this->Output("sparse_count_table").ParamType(REQUIRED).DataTypeList({ge::DT_INT32}).FormatList({ge::FORMAT_ND});
 
         this->Attr("input_layout").AttrType(OPTIONAL).String("BNSD");
         this->Attr("stride").AttrType(OPTIONAL).Int(8);         // stride 大小，默认为8

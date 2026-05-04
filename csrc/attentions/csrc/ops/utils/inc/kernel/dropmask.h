@@ -18,27 +18,27 @@
 
 #include "util.h"
 
+using AscendC::DropOut;
 using AscendC::DROPOUT_MODE_BIT_MISALIGN;
 using AscendC::DropOutShapeInfo;
-using AscendC::DropOut;
 
 struct DropMaskInfo {
     // for compute dropout mask offset
     // 参数按B N G S1 S2全部切分设置进行偏移计算，没有切分的轴对应的参数设置为合适的0或者原始值
-    int64_t n2G; // n2 * g
-    int64_t gSize; // g
-    int64_t s1Size; // s1
-    int64_t s2Size; // s2
-    int64_t gOutIdx; // g out index
-    int64_t bSSOffset; // boidx * s1 * s2 ===bSSOffset
-    int64_t n2OutIdx; // n out index
-    int64_t s1OutIdx; // s1 out index   ===s1oIdx
-    int64_t s1InnerIdx; // s1 inner index, 配比 ===loopIdx
-    int64_t s1BaseSize; // S1基本块大小
-    int64_t splitS1BaseSize; // s1 split size ===vec1S1BaseSize
-    int64_t s2StartIdx; // s2 start index
-    int64_t s2Idx; // s2 index =====s2LoopCount
-    int64_t s2BaseNratioSize; // s2的配比长度: s2BaseSize(S2基本块大小) * nRatio
+    int64_t n2G;               // n2 * g
+    int64_t gSize;             // g
+    int64_t s1Size;            // s1
+    int64_t s2Size;            // s2
+    int64_t gOutIdx;           // g out index
+    int64_t bSSOffset;         // boidx * s1 * s2 ===bSSOffset
+    int64_t n2OutIdx;          // n out index
+    int64_t s1OutIdx;          // s1 out index   ===s1oIdx
+    int64_t s1InnerIdx;        // s1 inner index, 配比 ===loopIdx
+    int64_t s1BaseSize;        // S1基本块大小
+    int64_t splitS1BaseSize;   // s1 split size ===vec1S1BaseSize
+    int64_t s2StartIdx;        // s2 start index
+    int64_t s2Idx;             // s2 index =====s2LoopCount
+    int64_t s2BaseNratioSize;  // s2的配比长度: s2BaseSize(S2基本块大小) * nRatio
 
     // for copy in dropout mask
     uint32_t s1CopySize;
@@ -67,7 +67,8 @@ __aicore__ inline int64_t ComputeDropOffset(DropMaskInfo &dropMaskInfo)
         int64_t gOffset = dropMaskInfo.gOutIdx * dropMaskInfo.s1Size * dropMaskInfo.s2Size;
         // s1oIdx * s1BaseSize * s2Size + s1innerindex * vec1S1BaseSize * s2Size
         int64_t s1Offset = (dropMaskInfo.s1OutIdx * dropMaskInfo.s1BaseSize + dropMaskInfo.vecCoreOffset +
-                            dropMaskInfo.s1InnerIdx * dropMaskInfo.splitS1BaseSize) * dropMaskInfo.s2Size;
+                            dropMaskInfo.s1InnerIdx * dropMaskInfo.splitS1BaseSize) *
+                           dropMaskInfo.s2Size;
         // s2StartIdx + s2index * s2BaseNratioSize
         int64_t s2Offset = dropMaskInfo.s2StartIdx + dropMaskInfo.s2Idx * dropMaskInfo.s2BaseNratioSize;
         return bOffset + n2Offset + gOffset + s1Offset + s2Offset;
@@ -77,25 +78,27 @@ __aicore__ inline int64_t ComputeDropOffset(DropMaskInfo &dropMaskInfo)
 }
 
 template <bool hasDrop>
-__aicore__ inline void CopyInDropMask(LocalTensor<uint8_t>&dstTensor, GlobalTensor<uint8_t>& srcBoolTensor,
-    GlobalTensor<uint8_t>& srcByteTensor, DropMaskInfo &dropMaskInfo, int64_t alignedSize = blockBytes)
+__aicore__ inline void CopyInDropMask(LocalTensor<uint8_t> &dstTensor, GlobalTensor<uint8_t> &srcBoolTensor,
+                                      GlobalTensor<uint8_t> &srcByteTensor, DropMaskInfo &dropMaskInfo,
+                                      int64_t alignedSize = blockBytes)
 {
     if constexpr (hasDrop == true) {
         int64_t dropMaskOffset = ComputeDropOffset<hasDrop>(dropMaskInfo);
         if (unlikely(dropMaskInfo.boolMode)) {
-            BoolCopyIn(dstTensor, srcBoolTensor, dropMaskOffset,
-                       dropMaskInfo.s1CopySize, dropMaskInfo.s2CopySize, dropMaskInfo.s2TotalSize, alignedSize);
+            BoolCopyIn(dstTensor, srcBoolTensor, dropMaskOffset, dropMaskInfo.s1CopySize, dropMaskInfo.s2CopySize,
+                       dropMaskInfo.s2TotalSize, alignedSize);
         } else {
-            Bit2Int8CopyIn(dstTensor, srcByteTensor, dropMaskOffset, 1,
-                           dropMaskInfo.s1CopySize, dropMaskInfo.s2CopySize, dropMaskInfo.s2TotalSize, alignedSize);
+            Bit2Int8CopyIn(dstTensor, srcByteTensor, dropMaskOffset, 1, dropMaskInfo.s1CopySize,
+                           dropMaskInfo.s2CopySize, dropMaskInfo.s2TotalSize, alignedSize);
         }
         return;
     }
 }
 
 template <typename T, bool hasDrop>
-__aicore__ inline void ComputeDropMask(LocalTensor<T>& dstTensor, LocalTensor<T>& srcTensor,
-    LocalTensor<uint8_t>& dropoutBuffer, LocalTensor<uint8_t>& tmpDropBuffer, DropMaskInfo &dropMaskInfo)
+__aicore__ inline void ComputeDropMask(LocalTensor<T> &dstTensor, LocalTensor<T> &srcTensor,
+                                       LocalTensor<uint8_t> &dropoutBuffer, LocalTensor<uint8_t> &tmpDropBuffer,
+                                       DropMaskInfo &dropMaskInfo)
 {
     if constexpr (hasDrop == true) {
         DropOutShapeInfo dropOutShapeInfo;
@@ -118,4 +121,4 @@ __aicore__ inline void ComputeDropMask(LocalTensor<T>& dstTensor, LocalTensor<T>
     }
 }
 
-#endif // DROPMASK_H
+#endif  // DROPMASK_H

@@ -230,7 +230,7 @@ function make_sgl_kernel_npu_package()
     cd -
 }
 
-function build_attentions_kernels() 
+function build_attentions_kernels()
 {
     CUSTOM_OPP_DIR="${CURRENT_DIR}/python/attentions/attentions"
     KERNEL_DIR="csrc/attentions/build"

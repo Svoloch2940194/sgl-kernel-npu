@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -30,7 +30,7 @@ struct SparseBlockEstimateCompileInfo {
     size_t defaultSysWorkspaceSize;
 };
 
-BEGIN_TILING_DATA_DEF(SparseBlockEstimateSeqParams)                  // 不同的核心的首尾
+BEGIN_TILING_DATA_DEF(SparseBlockEstimateSeqParams)              // 不同的核心的首尾
 TILING_DATA_FIELD_DEF_ARR(uint32_t, 64, coreHeadNumTail);        // coreNStart
 TILING_DATA_FIELD_DEF_ARR(uint32_t, 64, actualS1);               // coreNEnd
 TILING_DATA_FIELD_DEF_ARR(uint32_t, 64, actualCoreNums);         // coreSidStart
@@ -67,4 +67,4 @@ END_TILING_DATA_DEF;
 
 REGISTER_TILING_DATA_CLASS(SparseBlockEstimate, SparseBlockEstimateTilingData)
 }  // namespace optiling
-#endif // SPARSE_BLOCK_ESTIMATE_H
+#endif  // SPARSE_BLOCK_ESTIMATE_H

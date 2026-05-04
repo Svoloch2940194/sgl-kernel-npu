@@ -27,4 +27,4 @@
 /* 条件报错 */
 #define OPS_ERR_IF(COND, LOG_FUNC, EXPR) OPS_LOG_STUB_IF(COND, LOG_FUNC, EXPR)
 
-#endif // OPS_ERROR_H_
+#endif  // OPS_ERROR_H_

@@ -51,13 +51,12 @@ struct FlashAttentionScoreGradCompileInfo {
     int64_t coreNum;
 };
 
-class TilingBaseClass {
+class TilingBaseClass
+{
 public:
     TilingBaseClass() = default;
 
-    explicit TilingBaseClass(gert::TilingContext *context) : context_(context)
-    {
-    }
+    explicit TilingBaseClass(gert::TilingContext *context) : context_(context) {}
 
     virtual ~TilingBaseClass() = default;
 
@@ -135,7 +134,7 @@ protected:
             << ", content:";
         for (size_t i = 0; i < bufLen / sizeof(uint32_t); i++) {
             oss << *(buf + i) << ",";
-            if (oss.str().length() > 640) { // Split according to 640 to avoid truncation
+            if (oss.str().length() > 640) {  // Split according to 640 to avoid truncation
                 OPS_LOG_D(context_, "%s", oss.str().c_str());
                 oss.str("");
             }
@@ -153,7 +152,8 @@ protected:
         return (sliceNum + (ration - 1)) / ration;
     }
 
-    template <typename T> [[nodiscard]] std::string GetShapeDebugStr(const T &shape) const
+    template <typename T>
+    [[nodiscard]] std::string GetShapeDebugStr(const T &shape) const
     {
         std::ostringstream oss;
         oss << "[";
@@ -178,8 +178,8 @@ protected:
         oss << "(shape:" << GetShapeDebugStr(shape->GetStorageShape()) << "),";
         oss << "(ori_shape:" << GetShapeDebugStr(shape->GetOriginShape()) << "),";
         oss << "(format: "
-            << ge::TypeUtils::FormatToSerialString(static_cast<ge::Format>(
-                                                   ge::GetPrimaryFormat(tensor->GetStorageFormat())))
+            << ge::TypeUtils::FormatToSerialString(
+                   static_cast<ge::Format>(ge::GetPrimaryFormat(tensor->GetStorageFormat())))
             << "),";
         oss << "(ori_format: " << ge::TypeUtils::FormatToSerialString(tensor->GetOriginFormat()) << ") ";
         return oss.str();
@@ -222,4 +222,4 @@ protected:
     AiCoreParams aicoreParams_{0, 0, 0, 0, 0, 0, 0};
 };
 
-} // namespace optiling
+}  // namespace optiling

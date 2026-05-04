@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -12,7 +12,6 @@
 
 #include "register/op_def_registry.h"
 #include "graph/utils/type_utils.h"
-
 
 namespace ops {
 
@@ -30,4 +29,4 @@ IMPL_OP_INFERSHAPE(SparseBlockEstimate)
     .InferShape(SparseBlockEstimateInferShape)
     .InferDataType(SparseBlockEstimateInferDtype);
 
-} // namespace ops
+}  // namespace ops

@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -59,7 +59,8 @@ struct INVOKE_TYPE {
 using namespace AscendC;
 
 template <typename PFAT>
-class SparseBlockEstimate {
+class SparseBlockEstimate
+{
 public:
     using Q_T = typename PFAT::inputType;
     using KV_T = typename PFAT::inputType;
@@ -169,8 +170,7 @@ public:
     SoftMaxTiling softmaxFlashTilingData;
     SoftMaxTiling softmaxFlashTilingDataNew;
 
-    __aicore__ inline SparseBlockEstimate()
-    {}
+    __aicore__ inline SparseBlockEstimate() {}
 
     template <typename T>
     static __aicore__ inline T Align(T num, T rnd)
@@ -179,8 +179,8 @@ public:
     }
 
     __aicore__ inline void Init(GM_ADDR query, GM_ADDR key, GM_ADDR actual_seq_len, GM_ADDR actual_seq_len_kv,
-        GM_ADDR sparse_mask, GM_ADDR sparse_count_table, GM_ADDR workspace,
-        const SparseBlockEstimateTilingData &tilingData)
+                                GM_ADDR sparse_mask, GM_ADDR sparse_count_table, GM_ADDR workspace,
+                                const SparseBlockEstimateTilingData &tilingData)
     {
         this->blockIdx = AscendC::GetBlockIdx();
         this->batchSize = tilingData.batchSize;
@@ -227,9 +227,10 @@ public:
             isActualLenDimsKVNull = false;
         }
 
-        maskGm.SetGlobalBuffer(
-            (__gm__ int8_t *)sparse_mask, sparse_seq_len_q * sparse_seq_len_k * this->batchSize * this->head_num_q);
-        sparseCountTableGm.SetGlobalBuffer((__gm__ int32_t *)sparse_count_table,
+        maskGm.SetGlobalBuffer((__gm__ int8_t *)sparse_mask,
+                               sparse_seq_len_q * sparse_seq_len_k * this->batchSize * this->head_num_q);
+        sparseCountTableGm.SetGlobalBuffer(
+            (__gm__ int32_t *)sparse_count_table,
             Align<int32_t>(sparse_seq_len_q, BYTE_BLOCK_PFA / sizeof(int32_t)) * this->batchSize * this->head_num_q);
 
         uint32_t mmResN = singleCoreNBase + BYTE_BLOCK_PFA;
@@ -254,7 +255,7 @@ public:
 
         firstReduceGm.SetGlobalBuffer((
             __gm__ T *)(workspace + offset + this->blockIdx * singleCoreNBase * 2 * this->singleCoreMBase * sizeof(T)));
-        offset += totalBlockNum * singleCoreNBase * 2 * this->singleCoreMBase * sizeof(T); // 2个singleCoreNBase大小
+        offset += totalBlockNum * singleCoreNBase * 2 * this->singleCoreMBase * sizeof(T);  // 2个singleCoreNBase大小
 
         if (GetSysWorkSpacePtr() == nullptr) {
             return;
@@ -264,8 +265,8 @@ public:
     __aicore__ inline void InitBuffers()
     {
         constexpr auto sizeBase40k = BUFFER_SIZE_BYTE_4K * 10;
-        pipe.InitBuffer(mmResBuff, 2 * sizeBase40k); // 2个sizeBase40k大小
-        pipe.InitBuffer(firstReduceBuff, sizeBase40k / 2); // sizeBase40k / 2
+        pipe.InitBuffer(mmResBuff, 2 * sizeBase40k);          // 2个sizeBase40k大小
+        pipe.InitBuffer(firstReduceBuff, sizeBase40k / 2);    // sizeBase40k / 2
         pipe.InitBuffer(tmpBuff1, BUFFER_SIZE_BYTE_16K * 3);  // 3个BUFFER_SIZE_BYTE_16K大小
         // 以上同时作为qtemp （128 + 16）每个task能覆盖
 
@@ -275,7 +276,8 @@ public:
         pipe.InitBuffer(softmaxMaxBuff, BUFFER_SIZE_BYTE_4K);
         pipe.InitBuffer(softmaxExpBuff, BUFFER_SIZE_BYTE_4K);
         pipe.InitBuffer(softmaxSumBuff, BUFFER_SIZE_BYTE_4K);  // 170
-        pipe.InitBuffer(maxLocalBuff,
+        pipe.InitBuffer(
+            maxLocalBuff,
             BUFFER_SIZE_BYTE_8K);  // 128k / singlecoreN / stride * singlecoreM * sizeof(half) = 4k float = 8k
 
         softmaxMaxUb = softmaxMaxBuff.Get<MM_OUT_T>();
@@ -307,14 +309,14 @@ public:
 
     __aicore__ inline void AllocGlobalResources()
     {
-        for (int i = 0; i < 2; ++i) { // 循环2次
+        for (int i = 0; i < 2; ++i) {  // 循环2次
             this->bmm1ResCopyInEvent[i] = static_cast<event_t>(GetTPipePtr()->AllocEventID<HardEvent::MTE2_V>());
         }
     }
 
     __aicore__ inline void FreeGlobalResources()
     {
-        for (int i = 0; i < 2; ++i) { // 循环2次
+        for (int i = 0; i < 2; ++i) {  // 循环2次
             GetTPipePtr()->ReleaseEventID<HardEvent::MTE2_V>(this->bmm1ResCopyInEvent[i]);
         }
     }
@@ -347,7 +349,7 @@ public:
                 lastInner ? computeSize - (innerLoopTimes - 1) * basicSInnerSize : basicSInnerSize;
             // actualsingleProcessSInnerSizeAlign
             params->mm1SingleCoreN = Align(params->singleProcessSInnerBmmTail + (lastInner && (!CAUSAL) ? 1 : 0),
-                BYTE_BLOCK_PFA);  //! plus 1 for possible k % stride > 0 when not causal
+                                           BYTE_BLOCK_PFA);  //! plus 1 for possible k % stride > 0 when not causal
             if (this->queSize >= this->queSizeLimit) {
                 ComputeEachCoreSInnerLoop();
                 this->headId = (this->headId + 1) % PFA_PARAMS_QUEUE_CAPBABILITY;
@@ -476,11 +478,9 @@ public:
     __aicore__ inline void Bmm1ComputeIterate(SPFAEstParam *params)
     {
         if (this->mm1SingleCoreNPrev != params->mm1SingleCoreN) {
-            this->mm.SetOrgShape(this->tilingData->cubeTilingData.M,
-                this->tilingData->cubeTilingData.N,
-                this->tilingData->cubeTilingData.Ka,
-                this->tilingData->cubeTilingData.Kb,
-                params->mm1SingleCoreN);
+            this->mm.SetOrgShape(this->tilingData->cubeTilingData.M, this->tilingData->cubeTilingData.N,
+                                 this->tilingData->cubeTilingData.Ka, this->tilingData->cubeTilingData.Kb,
+                                 params->mm1SingleCoreN);
             this->mm1SingleCoreNPrev = params->mm1SingleCoreN;
         }
         this->mm.SetTail((params->singleProcessSOuterSize + stride - 1) / stride, params->singleProcessSInnerBmmTail);
@@ -495,11 +495,10 @@ public:
         SPFAEstParam *params = this->headParams;
         uint32_t reduceSize = sparseSize / stride;
         auto n = params->mm1SingleCoreN < singleCoreNBase ? params->mm1SingleCoreN : singleCoreNBase;
-        this->softmaxSouterStepLen =
-            BUFFER_SIZE_BYTE_32K / sizeof(MM_OUT_T) / n / 8 * 8;  // 16 = blocksize/stride;  16 * 1024 * 4 * db；8最小单位
-        DataCopy(this->mmResUb[0].template ReinterpretCast<MM_OUT_T>(),
-            this->bmm1ResGmDb[params->gmPingpong],
-            this->softmaxSouterStepLen * params->mm1SingleCoreN);
+        this->softmaxSouterStepLen = BUFFER_SIZE_BYTE_32K / sizeof(MM_OUT_T) / n / 8 *
+                                     8;  // 16 = blocksize/stride;  16 * 1024 * 4 * db；8最小单位
+        DataCopy(this->mmResUb[0].template ReinterpretCast<MM_OUT_T>(), this->bmm1ResGmDb[params->gmPingpong],
+                 this->softmaxSouterStepLen * params->mm1SingleCoreN);
         SetFlag<HardEvent::MTE2_V>(this->bmm1ResCopyInEvent[0]);
     }
 
@@ -513,12 +512,11 @@ public:
             ReorderQKTail(params);  // R1
             this->Bmm1ComputeIterate(params);
             SoftMaxShapeInfo softmaxShapeInfo{16 * sizeof(T) / sizeof(MM_OUT_T),
-                uint32_t(singleCoreNBase + BYTE_BLOCK_PFA),
-                16 * sizeof(T) / sizeof(MM_OUT_T),
-                singleCoreNBase};
-            this->softmaxFlashTilingData = SoftMaxFlashV2TilingFunc(
-                softmaxShapeInfo, sizeof(MM_OUT_T), sizeof(MM_OUT_T),
-                BUFFER_SIZE_BYTE_16K * 3, true, false); // 3个BUFFER_SIZE_BYTE_16K大小
+                                              uint32_t(singleCoreNBase + BYTE_BLOCK_PFA),
+                                              16 * sizeof(T) / sizeof(MM_OUT_T), singleCoreNBase};
+            this->softmaxFlashTilingData =
+                SoftMaxFlashV2TilingFunc(softmaxShapeInfo, sizeof(MM_OUT_T), sizeof(MM_OUT_T), BUFFER_SIZE_BYTE_16K * 3,
+                                         true, false);  // 3个BUFFER_SIZE_BYTE_16K大小
         }
         if (this->queSize > 0 && nextParams->sInnerLoopIdx == 0) {
             ReorderQKTail(nextParams);  // R2
@@ -535,7 +533,7 @@ public:
 
     template <typename CT>
     static __aicore__ inline void RowMuls(LocalTensor<CT> dstUb, LocalTensor<CT> src0Ub, LocalTensor<CT> src1Ub,
-        uint32_t dealRowCount, uint32_t columnCount, uint32_t actualColumnCount)
+                                          uint32_t dealRowCount, uint32_t columnCount, uint32_t actualColumnCount)
     {
         // Muls by row, 每行的元素除以相同的元素
         // dstUb[i, (j * 8) : (j * 8 + 7)] = src0Ub[i, (j * 8) : (j * 8 + 7)] / src1Ub[i, 0 : 7]
@@ -569,11 +567,7 @@ public:
             columnRepeatParams.dstRepStride = 8;  // 列方向上两次repeat起始地址间隔dtypeMask=64个元素，即8个block
             uint32_t offset = 0;
             for (uint32_t i = 0; i < dealRowCount; i++) {
-                Mul(dstUb[offset],
-                    src0Ub[offset],
-                    src1Ub[i * FP32_BLOCK_ELEMENT_NUM],
-                    dtypeMask,
-                    columnRepeatCount,
+                Mul(dstUb[offset], src0Ub[offset], src1Ub[i * FP32_BLOCK_ELEMENT_NUM], dtypeMask, columnRepeatCount,
                     columnRepeatParams);
                 offset += columnCount;
             }
@@ -596,7 +590,8 @@ public:
     __aicore__ inline void ColumnSum(LocalTensor<T> srcUb, uint32_t dealRowCount, uint32_t columnCount)
     {
         // 将srcUb的dealRowCount行累加到第一行,每行columnCount个元素
-        for (uint32_t mask = sparseSize / stride; mask > 0; mask = mask / 2) { // mask/2是mask减半（二进制右移1位），缩小二分累加步长
+        for (uint32_t mask = sparseSize / stride; mask > 0;
+             mask = mask / 2) {  // mask/2是mask减半（二进制右移1位），缩小二分累加步长
             if (dealRowCount & mask) {
                 if (dealRowCount > mask) {
                     pipe_barrier(PIPE_V);
@@ -610,7 +605,7 @@ public:
 
     template <typename CT>
     static __aicore__ inline void RowSum(const LocalTensor<CT> dstUb, LocalTensor<CT> srcUb, uint32_t dealRowCount,
-        uint32_t columnCount, uint32_t actualColumnCount)
+                                         uint32_t columnCount, uint32_t actualColumnCount)
     {
         uint32_t dtypeMask = 256 / sizeof(CT);
         uint32_t blockCount = actualColumnCount / dtypeMask;
@@ -631,47 +626,29 @@ public:
         for (uint32_t loopCount = blockCount / 2; loopCount > 0; loopCount = blockCount / 2) {
             blockCount = (blockCount + 1) / 2;
             for (uint32_t j = 0; j < loopCount; j++) {
-                Add(srcUb[j * dtypeMask],
-                    srcUb[j * dtypeMask],
-                    srcUb[(j + blockCount) * dtypeMask],
-                    dtypeMask,
-                    dealRowCount,
-                    repeatParamsMax);
+                Add(srcUb[j * dtypeMask], srcUb[j * dtypeMask], srcUb[(j + blockCount) * dtypeMask], dtypeMask,
+                    dealRowCount, repeatParamsMax);
             }
             pipe_barrier(PIPE_V);
         }
-        WholeReduceSum(dstUb,
-            srcUb,
-            (actualColumnCount < dtypeMask) ? actualColumnCount : dtypeMask,
-            dealRowCount,
-            1,
-            1,
-            columnCount / (BYTE_BLOCK_PFA / sizeof(CT)));
+        WholeReduceSum(dstUb, srcUb, (actualColumnCount < dtypeMask) ? actualColumnCount : dtypeMask, dealRowCount, 1,
+                       1, columnCount / (BYTE_BLOCK_PFA / sizeof(CT)));
     }
 
     template <bool nonFirst>
-    __aicore__ inline void SoftmaxCompute(const LocalTensor<MM_OUT_T> &mmResUb,
-        const LocalTensor<MM_OUT_T> &softmaxMaxUb, const LocalTensor<MM_OUT_T> &softmaxSumUb,
-        const LocalTensor<MM_OUT_T> &softmaxExpMaxUb, const LocalTensor<uint8_t> &tmpUb, uint32_t souterSize,
-        uint32_t colCount, uint32_t actColCount)
+    __aicore__ inline void
+    SoftmaxCompute(const LocalTensor<MM_OUT_T> &mmResUb, const LocalTensor<MM_OUT_T> &softmaxMaxUb,
+                   const LocalTensor<MM_OUT_T> &softmaxSumUb, const LocalTensor<MM_OUT_T> &softmaxExpMaxUb,
+                   const LocalTensor<uint8_t> &tmpUb, uint32_t souterSize, uint32_t colCount, uint32_t actColCount)
     {
-        SoftMaxShapeInfo softmaxShapeInfo{static_cast<uint32_t>(souterSize),
-            static_cast<uint32_t>(colCount),
-            static_cast<uint32_t>(souterSize),
-            static_cast<uint32_t>(actColCount)};
+        SoftMaxShapeInfo softmaxShapeInfo{static_cast<uint32_t>(souterSize), static_cast<uint32_t>(colCount),
+                                          static_cast<uint32_t>(souterSize), static_cast<uint32_t>(actColCount)};
         SoftMaxTiling &softmaxFlashTilingData = this->softmaxSouterStepLen == this->softmaxFlashTilingData.srcM
                                                     ? this->softmaxFlashTilingData
                                                     : this->softmaxFlashTilingDataNew;
-        SoftmaxFlashV2<MM_OUT_T, nonFirst, true, false>(mmResUb,
-            softmaxSumUb,
-            softmaxMaxUb,
-            mmResUb,
-            softmaxExpMaxUb,
-            softmaxSumUb,
-            softmaxMaxUb,
-            tmpUb,
-            softmaxFlashTilingData,
-            softmaxShapeInfo);
+        SoftmaxFlashV2<MM_OUT_T, nonFirst, true, false>(mmResUb, softmaxSumUb, softmaxMaxUb, mmResUb, softmaxExpMaxUb,
+                                                        softmaxSumUb, softmaxMaxUb, tmpUb, softmaxFlashTilingData,
+                                                        softmaxShapeInfo);
     }
 
     __aicore__ inline void MaskCopyOut(uint32_t rowCount, uint32_t blockNumKGlobal, uint32_t sparseCountTableGmOffset)
@@ -692,13 +669,9 @@ public:
         dce.blockLen = n * sizeof(int32_t);
         DataCopyPad(sparseCountTableGm[sparseCountTableGmOffset], ansUb, dce);
         uint32_t maskGmOffset = sparseCountTableGmOffset * blockNumKGlobal;
-        DataCopy(maskGm[maskGmOffset],
-            maskUb,
-            {static_cast<uint16_t>(n),
-                static_cast<uint16_t>(blockNumKGlobal * sizeof(uint8_t) / BYTE_BLOCK_PFA),
-                static_cast<uint16_t>(
-                    32 - blockNumKGlobal * sizeof(uint8_t) / BYTE_BLOCK_PFA),
-                0});
+        DataCopy(maskGm[maskGmOffset], maskUb,
+                 {static_cast<uint16_t>(n), static_cast<uint16_t>(blockNumKGlobal * sizeof(uint8_t) / BYTE_BLOCK_PFA),
+                  static_cast<uint16_t>(32 - blockNumKGlobal * sizeof(uint8_t) / BYTE_BLOCK_PFA), 0});
     }
 
     __aicore__ inline void Res1VecCompute(SPFAEstParam *params)
@@ -731,15 +704,14 @@ public:
 
         if (this->softmaxSouterStepLen != this->softmaxFlashTilingData.srcM ||
             colCount != this->softmaxFlashTilingData.srcK) {
-            SoftMaxShapeInfo softmaxShapeInfo{static_cast<uint32_t>(this->softmaxSouterStepLen),
-                static_cast<uint32_t>(colCount),
-                static_cast<uint32_t>(this->softmaxSouterStepLen),
-                static_cast<uint32_t>(colCount)};
+            SoftMaxShapeInfo softmaxShapeInfo{
+                static_cast<uint32_t>(this->softmaxSouterStepLen), static_cast<uint32_t>(colCount),
+                static_cast<uint32_t>(this->softmaxSouterStepLen), static_cast<uint32_t>(colCount)};
             // const bool isUpdate = false, const bool isBasicBlock = false, const bool isDataFormatNZ = false, const
             // bool isFlashOutputBrc = false
-            this->softmaxFlashTilingDataNew = SoftMaxFlashV2TilingFunc(
-                softmaxShapeInfo, sizeof(MM_OUT_T), sizeof(MM_OUT_T),
-                BUFFER_SIZE_BYTE_16K * 3, true, false); // 3个BUFFER_SIZE_BYTE_16K大小
+            this->softmaxFlashTilingDataNew =
+                SoftMaxFlashV2TilingFunc(softmaxShapeInfo, sizeof(MM_OUT_T), sizeof(MM_OUT_T), BUFFER_SIZE_BYTE_16K * 3,
+                                         true, false);  // 3个BUFFER_SIZE_BYTE_16K大小
         }
 
         uint32_t reduceColCnt = (actColCount + reduceSize - 1) / reduceSize;
@@ -763,9 +735,8 @@ public:
             WaitFlag<HardEvent::V_MTE2>(ev2);
             if (nextSouterOffset < rowCount) {  // noLastSoftmaxLoop
                 auto &srcGm = this->bmm1ResGmDb[gmPingpong];
-                DataCopy(this->mmResUb[ubPingpong ^ 1].template ReinterpretCast<MM_OUT_T>(),
-                    srcGm[nextMm1ResGmOffset],
-                    nextSouterSize * colCount);
+                DataCopy(this->mmResUb[ubPingpong ^ 1].template ReinterpretCast<MM_OUT_T>(), srcGm[nextMm1ResGmOffset],
+                         nextSouterSize * colCount);
                 SetFlag<HardEvent::MTE2_V>(this->bmm1ResCopyInEvent[ubPingpong ^ 1]);
             }
             WaitFlag<HardEvent::MTE2_V>(this->bmm1ResCopyInEvent[ubPingpong]);
@@ -775,23 +746,13 @@ public:
             pipe_barrier(PIPE_V);
             auto brcbOffset = souterOffset * BYTE_BLOCK_PFA / sizeof(MM_OUT_T);
             if (sInnerLoopIdx == 0) {
-                SoftmaxCompute<false>(softmaxUb,
-                    softmaxMaxUb[brcbOffset],
-                    softmaxSumUb[brcbOffset],
-                    softmaxExpUb[brcbOffset],
-                    this->tmpBuff1.template Get<uint8_t>(),
-                    souterSize,
-                    colCount,
-                    actColCount);
+                SoftmaxCompute<false>(softmaxUb, softmaxMaxUb[brcbOffset], softmaxSumUb[brcbOffset],
+                                      softmaxExpUb[brcbOffset], this->tmpBuff1.template Get<uint8_t>(), souterSize,
+                                      colCount, actColCount);
             } else {
-                SoftmaxCompute<true>(softmaxUb,
-                    softmaxMaxUb[brcbOffset],
-                    softmaxSumUb[brcbOffset],
-                    softmaxExpUb[brcbOffset],
-                    this->tmpBuff1.template Get<uint8_t>(),
-                    souterSize,
-                    colCount,
-                    actColCount);
+                SoftmaxCompute<true>(softmaxUb, softmaxMaxUb[brcbOffset], softmaxSumUb[brcbOffset],
+                                     softmaxExpUb[brcbOffset], this->tmpBuff1.template Get<uint8_t>(), souterSize,
+                                     colCount, actColCount);
             }
             pipe_barrier(PIPE_V);
             if constexpr (sizeof(MM_OUT_T) > sizeof(T)) {
@@ -813,16 +774,12 @@ public:
             for (auto i = 0; i < souterSize; i++) {  // souterSize = 16， i + souterOffset =0~M
                 if (colCount > clearStart) {
                     Mul(this->mmResUb[ubPingpong][i * colCount + clearStart].template ReinterpretCast<int16_t>(),
-                        this->mmResUb[ubPingpong][i * colCount + clearStart].template ReinterpretCast<int16_t>(),
-                        mulUb,
+                        this->mmResUb[ubPingpong][i * colCount + clearStart].template ReinterpretCast<int16_t>(), mulUb,
                         colCount - clearStart);
                     pipe_barrier(PIPE_V);
                 }
-                RowSum(firstReduceUb[reduceColCntAlign * (i + souterOffset)],
-                    this->mmResUb[ubPingpong][i * colCount],
-                    reduceColCnt,
-                    reduceSize,
-                    reduceSize);
+                RowSum(firstReduceUb[reduceColCntAlign * (i + souterOffset)], this->mmResUb[ubPingpong][i * colCount],
+                       reduceColCnt, reduceSize, reduceSize);
             }
             SetFlag<HardEvent::V_MTE2>(ev2);
             mm1ResGmOffset = nextMm1ResGmOffset;
@@ -830,14 +787,8 @@ public:
         }
         WaitFlag<HardEvent::V_MTE2>(ev2);
         // reverse brcb
-        WholeReduceMax(maxLocal[singleCoreMBase * sInnerLoopIdx],
-            softmaxMaxUb,
-            BYTE_BLOCK_PFA / sizeof(MM_OUT_T),
-            singleCoreMBase,
-            1,
-            1,
-            1,
-            ReduceOrder::ORDER_ONLY_VALUE);
+        WholeReduceMax(maxLocal[singleCoreMBase * sInnerLoopIdx], softmaxMaxUb, BYTE_BLOCK_PFA / sizeof(MM_OUT_T),
+                       singleCoreMBase, 1, 1, 1, ReduceOrder::ORDER_ONLY_VALUE);
         pipe_barrier(PIPE_V);
 
         // firstReduceUb = [128, 72] firstReduceGm = [looptimes-1, 128, 72]
@@ -845,19 +796,16 @@ public:
             auto eidv3 = static_cast<event_t>(GetTPipePtr()->FetchEventID(HardEvent::V_MTE3));
             SetFlag<HardEvent::V_MTE3>(eidv3);
             WaitFlag<HardEvent::V_MTE3>(eidv3);
-            DataCopy(firstReduceGm[sInnerLoopIdx * reduceColCntAlign * rowCount],
-                firstReduceUb,
-                reduceColCntAlign * rowCount);
+            DataCopy(firstReduceGm[sInnerLoopIdx * reduceColCntAlign * rowCount], firstReduceUb,
+                     reduceColCntAlign * rowCount);
         } else {
             auto &secReduceResUb = this->mmResUb[1];
             SecondReduce(secReduceResUb, rowCount, looptimes, gmPingpong);
             pipe_barrier(PIPE_V);
             for (uint32_t i = 0; i < (rowCount + reduceSize - 1) / reduceSize; i++) {
                 auto actBlockCount = CAUSAL ? rowStart / reduceSize + i + 1 : blockCountRow;
-                ScoreCompute(secReduceResUb[i * totreduceColCntAlign],
-                    (rowCount + reduceSize - 1) / reduceSize,
-                    actBlockCount,
-                    i);
+                ScoreCompute(secReduceResUb[i * totreduceColCntAlign], (rowCount + reduceSize - 1) / reduceSize,
+                             actBlockCount, i);
             }  // 4 rows
             MaskCopyOut(rowCount, blockNumKGlobal, sparseCountTableGmOffset);
         }
@@ -869,8 +817,8 @@ public:
         WaitFlag<HardEvent::MTE3_MTE2>(bmm1ResCopyOutEvent);
     }
 
-    __aicore__ inline void SecondReduce(
-        const LocalTensor<T> &dst, uint32_t srcRowCount, uint32_t innerLoopTimes, uint32_t gmPingpong)
+    __aicore__ inline void SecondReduce(const LocalTensor<T> &dst, uint32_t srcRowCount, uint32_t innerLoopTimes,
+                                        uint32_t gmPingpong)
     {
         uint32_t basicSInnerSize = singleCoreNBase;
         uint32_t reduceSize = sparseSize / stride;  // 16
@@ -897,8 +845,8 @@ public:
             WaitFlag<HardEvent::V_MTE2>(eidv2);
             if (i + 1 < innerLoopTimes) {
                 if (i + 1 < innerLoopTimes - 1) {
-                    DataCopy(
-                        this->mmResUb[0][(ubPingpong ^ 1) * copysize], firstReduceGm[(i + 1) * copysize], copysize);
+                    DataCopy(this->mmResUb[0][(ubPingpong ^ 1) * copysize], firstReduceGm[(i + 1) * copysize],
+                             copysize);
                 }
                 SetFlag<HardEvent::MTE2_V>(eids[ubPingpong ^ 1]);
             }
@@ -919,10 +867,8 @@ public:
                 DataCopy(tmpUbCopy, tmpUb, {(uint16_t)srcRowCount, 1, 0, 1});
                 DataCopy(tmpUbCopy[BYTE_BLOCK_PFA / sizeof(MM_OUT_T)], tmpUb, {(uint16_t)srcRowCount, 1, 0, 1});
                 pipe_barrier(PIPE_V);
-                Cast(tmpUb.template ReinterpretCast<T>(),
-                    tmpUbCopy,
-                    RoundMode::CAST_ROUND,
-                    srcRowCount * BYTE_BLOCK_PFA / sizeof(T));
+                Cast(tmpUb.template ReinterpretCast<T>(), tmpUbCopy, RoundMode::CAST_ROUND,
+                     srcRowCount * BYTE_BLOCK_PFA / sizeof(T));
                 pipe_barrier(PIPE_V);
             }
             WaitFlag<HardEvent::MTE2_V>(eids[ubPingpong]);
@@ -934,9 +880,8 @@ public:
             for (auto _t = 0; _t < times; _t++) {
                 auto secReduceRows = _t == times - 1 ? srcRowCount - _t * reduceSize : reduceSize;
                 ColumnSum(src[_t * reduceSize * reduceColCntAlign], secReduceRows, reduceColCntAlign);
-                DataCopy(dst[(_t)*totreduceColCntAlign + reduceColCnt * i],
-                    src[_t * reduceSize * reduceColCntAlign],
-                    colCount);
+                DataCopy(dst[(_t)*totreduceColCntAlign + reduceColCnt * i], src[_t * reduceSize * reduceColCntAlign],
+                         colCount);
             }
             SetFlag<HardEvent::V_MTE2>(eidv2);
             ubPingpong ^= 1;
@@ -944,8 +889,8 @@ public:
         WaitFlag<HardEvent::V_MTE2>(eidv2);
     }
 
-    __aicore__ inline void ScoreCompute(
-        LocalTensor<T> srcLocal, uint32_t rowCount, uint32_t actColCount, uint32_t rowIdx)  // 64 * 128K ==> 4 * 1K
+    __aicore__ inline void ScoreCompute(LocalTensor<T> srcLocal, uint32_t rowCount, uint32_t actColCount,
+                                        uint32_t rowIdx)  // 64 * 128K ==> 4 * 1K
     {
         uint32_t colCount = (actColCount + 31) / 32 * 32;
         auto maskLocal = maskUb[rowIdx * MAX_QK_LEN / sparseSize];
@@ -954,7 +899,7 @@ public:
         Duplicate(maskLocal.template ReinterpretCast<half>(), (half)0.0, MAX_QK_LEN / sparseSize / sizeof(half));
         pipe_barrier(PIPE_V);
 
-        if (actColCount <= 2 && CAUSAL) { // 2 is activate col count
+        if (actColCount <= 2 && CAUSAL) {  // 2 is activate col count
             Duplicate(maskHalf, (half)1.0f, actColCount);
             pipe_barrier(PIPE_V);
             Cast(maskLocal, maskHalf, RoundMode::CAST_CEIL, actColCount);
@@ -973,18 +918,15 @@ public:
             // clear srcLocal
             Duplicate(sortedLocal.template ReinterpretCast<int16_t>(), (int16_t)0, colCount);
             pipe_barrier(PIPE_V);
-            Duplicate(sortedLocal.template ReinterpretCast<int16_t>(),
-                (int16_t)1,
-                setDiag || (!CAUSAL) ? actColCount - 1 : actColCount);
+            Duplicate(sortedLocal.template ReinterpretCast<int16_t>(), (int16_t)1,
+                      setDiag || (!CAUSAL) ? actColCount - 1 : actColCount);
             pipe_barrier(PIPE_V);  // diag 不参与排序
             if (setFirst) {
                 Duplicate(sortedLocal.template ReinterpretCast<int16_t>(), (int16_t)0, 1);
                 pipe_barrier(PIPE_V);
             }
-            Mul(srcLocal.template ReinterpretCast<int16_t>(),
-                srcLocal.template ReinterpretCast<int16_t>(),
-                sortedLocal.template ReinterpretCast<int16_t>(),
-                colCount);
+            Mul(srcLocal.template ReinterpretCast<int16_t>(), srcLocal.template ReinterpretCast<int16_t>(),
+                sortedLocal.template ReinterpretCast<int16_t>(), colCount);
             pipe_barrier(PIPE_V);
             DataCopy(sortedLocal, srcLocal, colCount);
             pipe_barrier(PIPE_V);
@@ -996,9 +938,10 @@ public:
             auto rs = static_cast<float>(sortedLocal.GetValue(colCount));
             SetFlag<HardEvent::S_V>(eid_sv);
             WaitFlag<HardEvent::S_V>(eid_sv);
-            AscendC::Sort<half, true>(sortedLocal, srcLocal, indexLocal, sortTmpLocal, colCount / 32); // sort，一次32个
+            AscendC::Sort<half, true>(sortedLocal, srcLocal, indexLocal, sortTmpLocal,
+                                      colCount / 32);  // sort，一次32个
             pipe_barrier(PIPE_V);
-            AscendC::Extract<half>(sortedValueLocal, dstIndexLocal, sortedLocal, colCount / 32); // 一次32个
+            AscendC::Extract<half>(sortedValueLocal, dstIndexLocal, sortedLocal, colCount / 32);  // 一次32个
             pipe_barrier(PIPE_V);
             constexpr uint32_t piece = 16;
             float s = 0;
@@ -1040,7 +983,7 @@ public:
                 cnt = actColCount;
                 scoreGuard = 0.0f;
             }
-            if ((cnt > actColCount * this->rowSparse) && actColCount >= 10) { // 10: 有效列数
+            if ((cnt > actColCount * this->rowSparse) && actColCount >= 10) {  // 10: 有效列数
                 auto kk = static_cast<int32_t>(actColCount * this->rowSparse);
                 scoreGuard = static_cast<float>(sortedValueLocal.GetValue(kk - 1));
             }
@@ -1097,14 +1040,13 @@ public:
             auto len = t == times - 1 ? qLength - M * t : M;
             if constexpr (LAYOUT_T == INPUT_LAYOUT::TND || LAYOUT_T == INPUT_LAYOUT::BSH) {
                 DataCopyParams queryCopyParams;
-                queryCopyParams.blockLen = dim * sizeof(Q_T) / 32; // 32 is BYTES_PER_BLOCK
+                queryCopyParams.blockLen = dim * sizeof(Q_T) / 32;  // 32 is BYTES_PER_BLOCK
                 ;
                 queryCopyParams.blockCount = len;
-                queryCopyParams.srcStride = (head_num_q - 1) * dim / 32; // 32 is BYTES_PER_BLOCK
-                queryCopyParams.dstStride = 0;  // 连续
-                DataCopy(queryUb,
-                    queryGm[tensorAOffset + t * M * head_num_q * dim],
-                    queryCopyParams);  // TND layout, offset re compute
+                queryCopyParams.srcStride = (head_num_q - 1) * dim / 32;  // 32 is BYTES_PER_BLOCK
+                queryCopyParams.dstStride = 0;                            // 连续
+                DataCopy(queryUb, queryGm[tensorAOffset + t * M * head_num_q * dim],
+                         queryCopyParams);  // TND layout, offset re compute
             } else if constexpr (LAYOUT_T == INPUT_LAYOUT::BNSD) {
                 DataCopy(queryUb, queryGm[tensorAOffset + t * M * dim], len * dim);
             }
@@ -1131,8 +1073,8 @@ public:
             queryCopyParams.srcStride = (stride - 1) * blkLen;
             queryCopyParams.dstStride = (stride - 1) * blkLen;
             for (auto j = 0; j < stride; j++) {
-                DataCopy(
-                    queryGmTmp[gmPingpong][j * dim + t * M * dim], queryUb[(stride - j - 1) * dim], queryCopyParams);
+                DataCopy(queryGmTmp[gmPingpong][j * dim + t * M * dim], queryUb[(stride - j - 1) * dim],
+                         queryCopyParams);
             }
             eidv3 = static_cast<event_t>(GetTPipePtr()->FetchEventID(HardEvent::MTE3_MTE2));
             SetFlag<HardEvent::MTE3_MTE2>(eidv3);

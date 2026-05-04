@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 # Copyright (c) Huawei Technologies Co., Ltd. 2024-2025. All rights reserved.
-# 
+#
 # You can use this software according to the terms and conditions of the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
@@ -12,6 +12,7 @@
 
 import os
 from functools import reduce
+
 from .exception import ParametersInvalid
 from .logs.logging import logger
 
@@ -26,17 +27,18 @@ MODELDATA_DIR_PERMISSION = 0o750
 BINARY_FILE_PERMISSION = 0o755
 
 FLAG_OS_MAP = {
-    'r': os.O_RDONLY, 'r+': os.O_RDWR,
-    'w': os.O_CREAT | os.O_TRUNC | os.O_WRONLY,
-    'w+': os.O_CREAT | os.O_TRUNC | os.O_RDWR,
-    'a': os.O_CREAT | os.O_APPEND | os.O_WRONLY,
-    'a+': os.O_CREAT | os.O_APPEND | os.O_RDWR,
-    'x': os.O_CREAT | os.O_EXCL,
-    "b": getattr(os, "O_BINARY", 0)
+    "r": os.O_RDONLY,
+    "r+": os.O_RDWR,
+    "w": os.O_CREAT | os.O_TRUNC | os.O_WRONLY,
+    "w+": os.O_CREAT | os.O_TRUNC | os.O_RDWR,
+    "a": os.O_CREAT | os.O_APPEND | os.O_WRONLY,
+    "a+": os.O_CREAT | os.O_APPEND | os.O_RDWR,
+    "x": os.O_CREAT | os.O_EXCL,
+    "b": getattr(os, "O_BINARY", 0),
 }
 
 
-def safe_open(file_path: str, mode='r', encoding=None, permission_mode=0o640, **kwargs):
+def safe_open(file_path: str, mode="r", encoding=None, permission_mode=0o640, **kwargs):
     """
     Args:
         file_path (str): 文件路径
@@ -48,9 +50,9 @@ def safe_open(file_path: str, mode='r', encoding=None, permission_mode=0o640, **
         check_link (bool): 是否校验软链接
         kwargs:
     """
-    max_path_length = kwargs.get('max_path_length', MAX_PATH_LENGTH)
-    max_file_size = kwargs.get('max_file_size', MAX_FILE_SIZE)
-    check_link = kwargs.get('check_link', True)
+    max_path_length = kwargs.get("max_path_length", MAX_PATH_LENGTH)
+    max_file_size = kwargs.get("max_file_size", MAX_FILE_SIZE)
+    check_link = kwargs.get("check_link", True)
 
     file_path = standardize_path(file_path, max_path_length, check_link)
     check_file_safety(file_path, max_file_size, permission_mode)
@@ -64,8 +66,11 @@ def safe_open(file_path: str, mode='r', encoding=None, permission_mode=0o640, **
     flags = [FLAG_OS_MAP.get(mode, os.O_RDONLY) for mode in flags]
     total_flag = reduce(lambda a, b: a | b, flags)
 
-    return os.fdopen(os.open(file_path, total_flag, SAFEOPEN_FILE_PERMISSION),
-                     mode, encoding=encoding)
+    return os.fdopen(
+        os.open(file_path, total_flag, SAFEOPEN_FILE_PERMISSION),
+        mode,
+        encoding=encoding,
+    )
 
 
 def standardize_path(path: str, max_path_length=MAX_PATH_LENGTH, check_link=True):
@@ -75,7 +80,7 @@ def standardize_path(path: str, max_path_length=MAX_PATH_LENGTH, check_link=True
         path (str): 未标准化路径
         max_path_length (int): 文件路径最大长度
         check_link (bool): 是否校验软链接
-    Return: 
+    Return:
         path (str): 标准化后的绝对路径
     """
     check_path_is_none(path)
@@ -97,19 +102,24 @@ def check_path_is_none(path: str):
 
 def check_path_is_link(path: str):
     if os.path.islink(os.path.normpath(path)):
-        raise ParametersInvalid(f"The path:{os.path.relpath(path)} is a symbolic link file.")
+        raise ParametersInvalid(
+            f"The path:{os.path.relpath(path)} is a symbolic link file."
+        )
 
 
 def check_path_length_lt(path: str, max_path_length=MAX_PATH_LENGTH):
     if path.__len__() > max_path_length:
-        raise ParametersInvalid(f"The length of path is {path.__len__()}, which exceeds the limit {max_path_length}.")
+        raise ParametersInvalid(
+            f"The length of path is {path.__len__()}, which exceeds the limit {max_path_length}."
+        )
 
 
 def check_file_size_lt(path: str, max_file_size=MAX_FILE_SIZE):
     if os.path.getsize(path) > max_file_size:
         raise ParametersInvalid(
             f"The size of file:{os.path.relpath(path)} is {os.path.getsize(path)}, \
-                which exceeds the limit {max_file_size}.")
+                which exceeds the limit {max_file_size}."
+        )
 
 
 def check_owner(path: str):
@@ -118,10 +128,12 @@ def check_owner(path: str):
     cur_uid = os.geteuid()
     cur_gid = os.getgid()
     if not (cur_uid == 0 or cur_uid == path_owner or path_gid == cur_gid):
-        raise ParametersInvalid(f"The current user does not have permission to access the path:{path}. "
-                                "Because he is not root or the path owner, "
-                                "and not in the same user group with the path owner. "
-                                "Please check and make sure to satisfy at least one of the conditions above.")
+        raise ParametersInvalid(
+            f"The current user does not have permission to access the path:{path}. "
+            "Because he is not root or the path owner, "
+            "and not in the same user group with the path owner. "
+            "Please check and make sure to satisfy at least one of the conditions above."
+        )
 
 
 def check_max_permission(file_path: str, permission_mode=0o640):
@@ -135,18 +147,30 @@ def check_max_permission(file_path: str, permission_mode=0o640):
             raise PermissionError(err_msg)
 
 
-def check_file_safety(file_path: str, max_file_size=MAX_FILE_SIZE, is_check_file_size=True, permission_mode=0o640):
+def check_file_safety(
+    file_path: str,
+    max_file_size=MAX_FILE_SIZE,
+    is_check_file_size=True,
+    permission_mode=0o640,
+):
     if not is_path_exists(file_path):
         raise ParametersInvalid(f"The path:{os.path.relpath(file_path)} doesn't exist.")
     if not os.path.isfile(file_path):
-        raise ParametersInvalid(f"The input:{os.path.relpath(file_path)} is not a file.")
+        raise ParametersInvalid(
+            f"The input:{os.path.relpath(file_path)} is not a file."
+        )
     if is_check_file_size:
         check_file_size_lt(file_path, max_file_size)
     check_owner(file_path)
     check_max_permission(file_path, permission_mode)
 
 
-def check_dir_safety(dir_path: str, max_file_num=MAX_FILENUM_PER_DIR, is_check_file_num=True, permission_mode=0o750):
+def check_dir_safety(
+    dir_path: str,
+    max_file_num=MAX_FILENUM_PER_DIR,
+    is_check_file_num=True,
+    permission_mode=0o750,
+):
     if not is_path_exists(dir_path):
         raise ParametersInvalid(f"The path:{os.path.relpath(dir_path)} doesn't exist.")
     if not os.path.isdir(dir_path):
@@ -179,7 +203,9 @@ def safe_listdir(file_path: str, max_file_num=MAX_FILENUM_PER_DIR):
 def safe_readlines(file_obj, max_line_num=MAX_LINENUM_PER_FILE):
     lines = file_obj.readlines()
     if len(lines) > max_line_num:
-        raise ParametersInvalid(f"The number of lines in file is {len(lines)}, which exceeds the limit {max_line_num}.")
+        raise ParametersInvalid(
+            f"The number of lines in file is {len(lines)}, which exceeds the limit {max_line_num}."
+        )
     return lines
 
 

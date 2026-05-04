@@ -1,5 +1,5 @@
 # Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
-# 
+#
 # You can use this software according to the terms and conditions of the Mulan PSL v2.
 # You may obtain a copy of Mulan PSL v2 at:
 #          http://license.coscl.org.cn/MulanPSL2
@@ -238,7 +238,7 @@ function(add_opc_config)
     endif()
 
     string(REPLACE "," ";" OP_COMPILE_CONFIG_LIST "${OP_COMPILE_CONFIG}")
-    
+
     set(_OPC_CONFIG)
 
     foreach(_option ${OP_COMPILE_CONFIG_LIST})

@@ -1,7 +1,7 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
  *
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -47,8 +47,8 @@ using AclFloatArray = struct aclFloatArray;
 using AclBoolArray = struct aclBoolArray;
 using AclTensorList = struct aclTensorList;
 
-template<typename T = void>
-using FunctionPtr = T*;
+template <typename T = void>
+using FunctionPtr = T *;
 constexpr int K_HASH_BUF_SIZE = 8192;
 constexpr int K_HASH_BUF_MAX_SIZE = K_HASH_BUF_SIZE + 1024;
 constexpr int64_t ACL_TENSOR_MAX_DIM_FOR_FORMAT = 5;
@@ -58,7 +58,7 @@ constexpr int64_t DIM_NUM_5D = 5;
 extern thread_local char g_hashBuf[K_HASH_BUF_SIZE];
 extern thread_local int g_hashOffset;
 
-template <std::string_view const& ApiName>
+template <std::string_view const &ApiName>
 inline std::string GetWorkspaceSizeApiName()
 {
     constexpr std::string_view suffix = "GetWorkspaceSize";
@@ -68,30 +68,13 @@ inline std::string GetWorkspaceSizeApiName()
 }
 
 constexpr aclDataType K_ATEN_SCALAR_TYPE_TO_ACL_DATATYPE_TABLE[static_cast<int64_t>(at::ScalarType::NumOptions) + 1] = {
-    ACL_UINT8,
-    ACL_INT8,
-    ACL_INT16,
-    ACL_INT32,
-    ACL_INT64,
-    ACL_FLOAT16,
-    ACL_FLOAT,
-    ACL_DOUBLE,
-    ACL_DT_UNDEFINED,
-    ACL_COMPLEX64,
-    ACL_COMPLEX128,
-    ACL_BOOL,
-    ACL_DT_UNDEFINED,
-    ACL_DT_UNDEFINED,
-    ACL_DT_UNDEFINED,
-    ACL_BF16,
-    ACL_DT_UNDEFINED,
-    ACL_DT_UNDEFINED,
-    ACL_DT_UNDEFINED,
-    ACL_DT_UNDEFINED
-};
+    ACL_UINT8,      ACL_INT8,         ACL_INT16,        ACL_INT32,        ACL_INT64,
+    ACL_FLOAT16,    ACL_FLOAT,        ACL_DOUBLE,       ACL_DT_UNDEFINED, ACL_COMPLEX64,
+    ACL_COMPLEX128, ACL_BOOL,         ACL_DT_UNDEFINED, ACL_DT_UNDEFINED, ACL_DT_UNDEFINED,
+    ACL_BF16,       ACL_DT_UNDEFINED, ACL_DT_UNDEFINED, ACL_DT_UNDEFINED, ACL_DT_UNDEFINED};
 
-template<typename T>
-inline bool CheckDataPointer(const T* data)
+template <typename T>
+inline bool CheckDataPointer(const T *data)
 {
     if (data == nullptr) {
         TORCH_CHECK(false, "memcpy failed: source data is null pointer");
@@ -116,27 +99,25 @@ inline bool CheckBufferSpace(size_t size)
     }
     return true;
 }
-template<typename T>
-inline bool ValidateMemcpyParams(const T* data, size_t size)
+template <typename T>
+inline bool ValidateMemcpyParams(const T *data, size_t size)
 {
     return CheckDataPointer(data) && CheckDataSize(size) && CheckBufferSpace(size);
 }
-
 
 inline bool IsCustomLibPathEmpty()
 {
     return g_customLibPath.empty();
 }
 
-
 inline bool ShouldSearchCustomLib()
 {
     return !IsCustomLibPathEmpty();
 }
-inline void* SearchCustomLibPaths(const char* apiName)
+inline void *SearchCustomLibPaths(const char *apiName)
 {
     for (const auto &libPath : g_customLibPath) {
-        void* funcAddr = FindFuncInCustomLibPath(apiName, libPath);
+        void *funcAddr = FindFuncInCustomLibPath(apiName, libPath);
         if (funcAddr != nullptr) {
             return funcAddr;
         }
@@ -144,17 +125,17 @@ inline void* SearchCustomLibPaths(const char* apiName)
     return nullptr;
 }
 
-inline void LogCustomLibNotFound(const char* apiName)
+inline void LogCustomLibNotFound(const char *apiName)
 {
     ASCEND_LOGI("%s is not in custom lib.", apiName);
 }
-inline void* FindFuncInCustomLib(const char* apiName)
+inline void *FindFuncInCustomLib(const char *apiName)
 {
     if (!ShouldSearchCustomLib()) {
         return nullptr;
     }
-    
-    void* result = SearchCustomLibPaths(apiName);
+
+    void *result = SearchCustomLibPaths(apiName);
     if (result == nullptr) {
         LogCustomLibNotFound(apiName);
     }
@@ -168,26 +149,26 @@ inline bool ShouldSearchDefaultLib()
 {
     return !IsDefaultCustomLibPathEmpty();
 }
-inline void* SearchDefaultLibPaths(const char* apiName)
+inline void *SearchDefaultLibPaths(const char *apiName)
 {
     for (const auto &libPath : g_defaultCustomLibPath) {
-        void* funcAddr = FindFuncInDefaultLibPath(apiName, libPath);
+        void *funcAddr = FindFuncInDefaultLibPath(apiName, libPath);
         if (funcAddr != nullptr) {
             return funcAddr;
         }
     }
     return nullptr;
 }
-inline void LogDefaultLibNotFound(const char* apiName)
+inline void LogDefaultLibNotFound(const char *apiName)
 {
     ASCEND_LOGI("%s is not in default custom lib.", apiName);
 }
-inline void* FindFuncInDefaultLib(const char* apiName)
+inline void *FindFuncInDefaultLib(const char *apiName)
 {
     if (!ShouldSearchDefaultLib()) {
         return nullptr;
     }
-    void* result = SearchDefaultLibPaths(apiName);
+    void *result = SearchDefaultLibPaths(apiName);
     if (result == nullptr) {
         LogDefaultLibNotFound(apiName);
     }
@@ -196,7 +177,7 @@ inline void* FindFuncInDefaultLib(const char* apiName)
 
 inline void *GetOpApiFuncAddr(const char *apiName)
 {
-    void* funcAddr = FindFuncInCustomLib(apiName);
+    void *funcAddr = FindFuncInCustomLib(apiName);
     if (funcAddr != nullptr) {
         return funcAddr;
     }
@@ -206,64 +187,64 @@ inline void *GetOpApiFuncAddr(const char *apiName)
     }
     return GetFuncFromDefaultLib(apiName);
 }
-c10::Scalar CreateScalarFromDouble(const at::Tensor* tensor);
-c10::Scalar CreateScalarFromLong(const at::Tensor* tensor);
-c10::Scalar CreateScalarFromFloat(const at::Tensor* tensor);
-c10::Scalar CreateScalarFromInt(const at::Tensor* tensor);
-c10::Scalar CreateScalarFromHalf(const at::Tensor* tensor);
-c10::Scalar CreateScalarFromBool(const at::Tensor* tensor);
-c10::Scalar CreateScalarFromComplexDouble(const at::Tensor* tensor);
-c10::Scalar CreateScalarFromComplexFloat(const at::Tensor* tensor);
-c10::Scalar CreateScalarFromBFloat16(const at::Tensor* tensor);
-inline c10::Scalar CreateScalarFromDouble(const at::Tensor* aclInput)
+c10::Scalar CreateScalarFromDouble(const at::Tensor *tensor);
+c10::Scalar CreateScalarFromLong(const at::Tensor *tensor);
+c10::Scalar CreateScalarFromFloat(const at::Tensor *tensor);
+c10::Scalar CreateScalarFromInt(const at::Tensor *tensor);
+c10::Scalar CreateScalarFromHalf(const at::Tensor *tensor);
+c10::Scalar CreateScalarFromBool(const at::Tensor *tensor);
+c10::Scalar CreateScalarFromComplexDouble(const at::Tensor *tensor);
+c10::Scalar CreateScalarFromComplexFloat(const at::Tensor *tensor);
+c10::Scalar CreateScalarFromBFloat16(const at::Tensor *tensor);
+inline c10::Scalar CreateScalarFromDouble(const at::Tensor *aclInput)
 {
     double value = *(double *)aclInput->data_ptr();
     return c10::Scalar(value);
 }
 
-inline c10::Scalar CreateScalarFromLong(const at::Tensor* aclInput)
+inline c10::Scalar CreateScalarFromLong(const at::Tensor *aclInput)
 {
     int64_t value = *(int64_t *)aclInput->data_ptr();
     return c10::Scalar(value);
 }
 
-inline c10::Scalar CreateScalarFromFloat(const at::Tensor* aclInput)
+inline c10::Scalar CreateScalarFromFloat(const at::Tensor *aclInput)
 {
     float value = *(float *)aclInput->data_ptr();
     return c10::Scalar(value);
 }
 
-inline c10::Scalar CreateScalarFromInt(const at::Tensor* aclInput)
+inline c10::Scalar CreateScalarFromInt(const at::Tensor *aclInput)
 {
     int value = *(int *)aclInput->data_ptr();
     return c10::Scalar(value);
 }
 
-inline c10::Scalar CreateScalarFromHalf(const at::Tensor* aclInput)
+inline c10::Scalar CreateScalarFromHalf(const at::Tensor *aclInput)
 {
     c10::Half value = *(c10::Half *)aclInput->data_ptr();
     return c10::Scalar(value);
 }
 
-inline c10::Scalar CreateScalarFromBool(const at::Tensor* aclInput)
+inline c10::Scalar CreateScalarFromBool(const at::Tensor *aclInput)
 {
     int8_t value = *(int8_t *)aclInput->data_ptr();
     return c10::Scalar(value);
 }
 
-inline c10::Scalar CreateScalarFromComplexDouble(const at::Tensor* aclInput)
+inline c10::Scalar CreateScalarFromComplexDouble(const at::Tensor *aclInput)
 {
     c10::complex<double> value = *(c10::complex<double> *)aclInput->data_ptr();
     return c10::Scalar(value);
 }
 
-inline c10::Scalar CreateScalarFromComplexFloat(const at::Tensor* aclInput)
+inline c10::Scalar CreateScalarFromComplexFloat(const at::Tensor *aclInput)
 {
     c10::complex<float> value = *(c10::complex<float> *)aclInput->data_ptr();
     return c10::Scalar(value);
 }
 
-inline c10::Scalar CreateScalarFromBFloat16(const at::Tensor* aclInput)
+inline c10::Scalar CreateScalarFromBFloat16(const at::Tensor *aclInput)
 {
     c10::BFloat16 value = *(c10::BFloat16 *)aclInput->data_ptr();
     return c10::Scalar(value);
@@ -314,8 +295,7 @@ inline AclTensor *ConvertType(const at::Tensor &atTensor)
     }
     at::ScalarType scalarDataType = atTensor.scalar_type();
     aclDataType aclType = K_ATEN_SCALAR_TYPE_TO_ACL_DATATYPE_TABLE[static_cast<int64_t>(scalarDataType)];
-    TORCH_CHECK(aclType != ACL_DT_UNDEFINED,
-                std::string(c10::toString(scalarDataType)) + " has not been supported")
+    TORCH_CHECK(aclType != ACL_DT_UNDEFINED, std::string(c10::toString(scalarDataType)) + " has not been supported")
     c10::SmallVector<int64_t, ACL_TENSOR_MAX_DIM_FOR_FORMAT> storageDims;
     // if aclType is ACL_STRING, storageDims is empty.
     auto itemSize = atTensor.itemsize();
@@ -346,15 +326,14 @@ inline AclTensor *ConvertType(const at::Tensor &atTensor)
     if (atTensor.unsafeGetTensorImpl()->is_wrapped_number()) {
         c10::Scalar expScalar = ConvertTensorToScalar(atTensor);
         at::Tensor aclInput = CopyScalarToDevice(expScalar, scalarDataType);
-        return aclCreateTensor(aclInput.sizes().data(), aclInput.sizes().size(), aclType,
-                               aclInput.strides().data(), aclInput.storage_offset(), format, storageDims.data(),
-                               storageDims.size(), const_cast<void *>(aclInput.storage().data()));
+        return aclCreateTensor(aclInput.sizes().data(), aclInput.sizes().size(), aclType, aclInput.strides().data(),
+                               aclInput.storage_offset(), format, storageDims.data(), storageDims.size(),
+                               const_cast<void *>(aclInput.storage().data()));
     }
 
-    auto aclTensorObj =
-        aclCreateTensor(atTensor.sizes().data(), atTensor.sizes().size(), aclType, atTensor.strides().data(),
-                        atTensor.storage_offset(), format, storageDims.data(), storageDims.size(),
-                        const_cast<void *>(atTensor.storage().data()));
+    auto aclTensorObj = aclCreateTensor(
+        atTensor.sizes().data(), atTensor.sizes().size(), aclType, atTensor.strides().data(), atTensor.storage_offset(),
+        format, storageDims.data(), storageDims.size(), const_cast<void *>(atTensor.storage().data()));
     return aclTensorObj;
 }
 
@@ -362,8 +341,7 @@ inline AclScalar *ConvertType(const at::Scalar &atScalar)
 {
     at::ScalarType scalarDataType = atScalar.type();
     aclDataType aclType = K_ATEN_SCALAR_TYPE_TO_ACL_DATATYPE_TABLE[static_cast<int64_t>(scalarDataType)];
-    TORCH_CHECK(aclType != ACL_DT_UNDEFINED,
-                std::string(c10::toString(scalarDataType)) + " has not been supported")
+    TORCH_CHECK(aclType != ACL_DT_UNDEFINED, std::string(c10::toString(scalarDataType)) + " has not been supported")
     AclScalar *aclScalarObj = nullptr;
     switch (scalarDataType) {
         case at::ScalarType::Double: {
@@ -399,7 +377,8 @@ inline AclIntArray *ConvertType(const at::IntArrayRef &atArray)
     return array;
 }
 
-template <std::size_t N> inline AclBoolArray *ConvertType(const std::array<bool, N> &value)
+template <std::size_t N>
+inline AclBoolArray *ConvertType(const std::array<bool, N> &value)
 {
     auto array = aclCreateBoolArray(value.data(), value.size());
     return array;
@@ -450,12 +429,13 @@ inline aclDataType ConvertType(const at::ScalarType scalarType)
     return K_ATEN_SCALAR_TYPE_TO_ACL_DATATYPE_TABLE[static_cast<int64_t>(scalarType)];
 }
 
-template <typename T> T ConvertType(T value)
+template <typename T>
+T ConvertType(T value)
 {
     return value;
 }
 
-template<typename TargetFuncType, typename SourceType>
+template <typename TargetFuncType, typename SourceType>
 struct FunctionPointerConverter {
     static TargetFuncType Convert(SourceType ptr)
     {
@@ -475,7 +455,7 @@ template <typename Tuple, size_t... I, typename FuncPtrType>
 auto ConvertToOpApiFunc(const Tuple &params, FuncPtrType *opApiAddr, std::index_sequence<I...>)
 {
     using OpApiFunc = int (*)(typename std::decay<decltype(std::get<I>(params))>::type...);
-    auto func = FunctionPointerConverter<OpApiFunc, FuncPtrType*>::Convert(opApiAddr);
+    auto func = FunctionPointerConverter<OpApiFunc, FuncPtrType *>::Convert(opApiAddr);
     return func;
 }
 
@@ -511,33 +491,39 @@ inline void Release(AclTensorList *p)
     aclDestroyTensorList(p);
 }
 
-template <typename T> void Release(T value)
+template <typename T>
+void Release(T value)
 {
     (void)value;
 }
 
-template <typename Tuple, size_t... I> void CallRelease(Tuple t, std::index_sequence<I...>)
+template <typename Tuple, size_t... I>
+void CallRelease(Tuple t, std::index_sequence<I...>)
 {
     (void)std::initializer_list<int>{(Release(std::get<I>(t)), 0)...};
 }
 
-template <typename Tuple> void ReleaseConvertTypes(Tuple &t)
+template <typename Tuple>
+void ReleaseConvertTypes(Tuple &t)
 {
     static constexpr auto size = std::tuple_size<Tuple>::value;
     CallRelease(t, std::make_index_sequence<size>{});
 }
 
-template <typename... Ts> constexpr auto ConvertTypes(Ts &...args)
+template <typename... Ts>
+constexpr auto ConvertTypes(Ts &...args)
 {
     return std::make_tuple(ConvertType(args)...);
 }
 
-template <typename Function, typename Tuple, size_t... I> auto Call(Function f, Tuple t, std::index_sequence<I...>)
+template <typename Function, typename Tuple, size_t... I>
+auto Call(Function f, Tuple t, std::index_sequence<I...>)
 {
     return f(std::get<I>(t)...);
 }
 
-template <typename Function, typename Tuple> auto Call(Function f, Tuple t)
+template <typename Function, typename Tuple>
+auto Call(Function f, Tuple t)
 {
     static constexpr auto size = std::tuple_size<Tuple>::value;
     return Call(f, t, std::make_index_sequence<size>{});
@@ -548,21 +534,15 @@ using InitHugeMemThreadLocal = int (*)(void *, bool);
 using UnInitHugeMemThreadLocal = void (*)(void *, bool);
 using ReleaseHugeMem = void (*)(void *, bool);
 
-template<typename GetWorkspaceSizeFuncType, typename OpApiFuncType>
-inline void ValidateApiAddresses(
-    GetWorkspaceSizeFuncType getWorkspaceSizeFuncAddr,
-    OpApiFuncType opApiFuncAddr,
-    std::string_view apiName,
-    std::string_view workspaceSizeApiStr)
+template <typename GetWorkspaceSizeFuncType, typename OpApiFuncType>
+inline void ValidateApiAddresses(GetWorkspaceSizeFuncType getWorkspaceSizeFuncAddr, OpApiFuncType opApiFuncAddr,
+                                 std::string_view apiName, std::string_view workspaceSizeApiStr)
 {
-    TORCH_CHECK(
-        getWorkspaceSizeFuncAddr != nullptr && opApiFuncAddr != nullptr,
-        apiName.data(), " or ", workspaceSizeApiStr.data(), " not in ", GetOpApiLibName(),
-        ", or ", GetOpApiLibName(), " not found."
-    );
+    TORCH_CHECK(getWorkspaceSizeFuncAddr != nullptr && opApiFuncAddr != nullptr, apiName.data(), " or ",
+                workspaceSizeApiStr.data(), " not in ", GetOpApiLibName(), ", or ", GetOpApiLibName(), " not found.");
 }
 
-template<typename InitMemAddrType>
+template <typename InitMemAddrType>
 inline void InitHugeMemCustom(InitMemAddrType initMemAddr)
 {
     using InitHugeMemFunc = int (*)(FunctionPtr<>, bool);
@@ -572,19 +552,15 @@ inline void InitHugeMemCustom(InitMemAddrType initMemAddr)
     }
 }
 
-template <std::string_view const& ApiName, typename GetWorkspaceSizeFuncType, typename... Args>
-auto PrepareParamsAndCalcWorkspaceSize(
-    uint64_t* workspaceSizeAddr, AclOpExecutor** executorAddr,
-    GetWorkspaceSizeFuncType getWorkspaceSizeFuncAddr, Args&&... args)
+template <std::string_view const &ApiName, typename GetWorkspaceSizeFuncType, typename... Args>
+auto PrepareParamsAndCalcWorkspaceSize(uint64_t *workspaceSizeAddr, AclOpExecutor **executorAddr,
+                                       GetWorkspaceSizeFuncType getWorkspaceSizeFuncAddr, Args &&...args)
 {
     auto convertedParams = ConvertTypes(std::forward<Args>(args)..., workspaceSizeAddr, executorAddr);
     static auto getWorkspaceSizeFunc = ConvertToOpApiFunc(convertedParams, getWorkspaceSizeFuncAddr);
     auto workspaceStatus = Call(getWorkspaceSizeFunc, convertedParams);
 
-    TORCH_CHECK(
-        workspaceStatus == 0,
-        "call ", ApiName.data(), " failed, detail:", aclGetRecentErrMsg()
-    );
+    TORCH_CHECK(workspaceStatus == 0, "call ", ApiName.data(), " failed, detail:", aclGetRecentErrMsg());
 
     return convertedParams;
 }
@@ -609,8 +585,8 @@ inline void UnInitHugeMem(UnInitMemAddrType unInitMemAddr)
     }
 }
 
-template <std::string_view const& ApiName, typename... Args>
-void EXEC_NPU_CMD(Args&&... args)
+template <std::string_view const &ApiName, typename... Args>
+void EXEC_NPU_CMD(Args &&...args)
 {
     auto workspaceSizeApiStr = GetWorkspaceSizeApiName<ApiName>();
     static const auto getWorkspaceSizeFuncAddr = GetOpApiFuncAddr(workspaceSizeApiStr.c_str());
@@ -619,34 +595,22 @@ void EXEC_NPU_CMD(Args&&... args)
     static const auto unInitMemAddr = GetOpApiFuncAddr("UnInitHugeMemThreadLocal");
     static const auto releaseMemAddr = GetOpApiFuncAddr("ReleaseHugeMem");
 
-    ValidateApiAddresses(
-        getWorkspaceSizeFuncAddr,
-        opApiFuncAddr,
-        ApiName,
-        std::string_view(workspaceSizeApiStr.c_str(), workspaceSizeApiStr.length())
-    );
+    ValidateApiAddresses(getWorkspaceSizeFuncAddr, opApiFuncAddr, ApiName,
+                         std::string_view(workspaceSizeApiStr.c_str(), workspaceSizeApiStr.length()));
 
     InitHugeMemCustom(initMemAddr);
     uint64_t workspaceSize = 0;
-    AclOpExecutor* executor = nullptr;
+    AclOpExecutor *executor = nullptr;
     auto convertedParams = PrepareParamsAndCalcWorkspaceSize<ApiName>(
-        &workspaceSize,
-        &executor,
-        getWorkspaceSizeFuncAddr,
-        std::forward<Args>(args)...
-    );
+        &workspaceSize, &executor, getWorkspaceSizeFuncAddr, std::forward<Args>(args)...);
     at::Tensor workspaceTensor;
-    void* workspaceAddr = AllocateWorkspace(workspaceSize, workspaceTensor);
+    void *workspaceAddr = AllocateWorkspace(workspaceSize, workspaceTensor);
     auto aclStreamObj = c10_npu::getCurrentNPUStream().stream(false);
-    auto aclCall = [convertedParams, workspaceAddr, workspaceSize,
-        aclStreamObj, executor]() -> int {
-        using OpApiFunc = int (*)(FunctionPtr<>, uint64_t, AclOpExecutor*, const aclrtStream);
-        auto opApiFunc = FunctionPointerConverter<OpApiFunc, void*>::Convert(opApiFuncAddr);
+    auto aclCall = [convertedParams, workspaceAddr, workspaceSize, aclStreamObj, executor]() -> int {
+        using OpApiFunc = int (*)(FunctionPtr<>, uint64_t, AclOpExecutor *, const aclrtStream);
+        auto opApiFunc = FunctionPointerConverter<OpApiFunc, void *>::Convert(opApiFuncAddr);
         auto apiRet = opApiFunc(workspaceAddr, workspaceSize, executor, aclStreamObj);
-        TORCH_CHECK(
-            apiRet == 0,
-            "call ", ApiName.data(), " failed, detail:", aclGetRecentErrMsg()
-        );
+        TORCH_CHECK(apiRet == 0, "call ", ApiName.data(), " failed, detail:", aclGetRecentErrMsg());
         ReleaseConvertTypes(convertedParams);
         ReleaseHugeMemResource(releaseMemAddr);
         return apiRet;
@@ -658,4 +622,4 @@ void EXEC_NPU_CMD(Args&&... args)
     UnInitHugeMem(unInitMemAddr);
 }
 
-#endif // PYTORCH_NPU_HELPER_H
+#endif  // PYTORCH_NPU_HELPER_H

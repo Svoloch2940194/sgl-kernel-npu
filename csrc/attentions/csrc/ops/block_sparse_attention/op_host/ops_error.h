@@ -1,6 +1,6 @@
 /**
  * Copyright (c) Huawei Technologies Co., Ltd. 2025-2025. All rights reserved.
- * 
+ *
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -17,8 +17,8 @@
 
 #include "error_manager.h"
 
-#define OPS_INNER_ERR_STUB(ERR_CODE_STR, OPS_DESC, FMT, ...)  \
-    do {                                                      \
+#define OPS_INNER_ERR_STUB(ERR_CODE_STR, OPS_DESC, FMT, ...) \
+    do {                                                     \
     } while (0)
 
 #define OPS_LOG_STUB_IF(COND, LOG_FUNC, EXPR)                                                               \
@@ -35,7 +35,8 @@
 #define OPS_REPORT_CUBE_INNER_ERR(OPS_DESC, ...) OPS_INNER_ERR_STUB("E69999", OPS_DESC, __VA_ARGS__)
 
 /* 条件报错 */
-#define OPS_ERR_IF(COND, LOG_FUNC, EXPR) {}
+#define OPS_ERR_IF(COND, LOG_FUNC, EXPR) \
+    {}
 #define OPS_LOG_I(OPS_DESC, ...) OPS_INNER_ERR_STUB("EZ9999", OPS_DESC, __VA_ARGS__)
 #define OPS_LOG_D(OPS_DESC, ...) OPS_INNER_ERR_STUB("EZ9999", OPS_DESC, __VA_ARGS__)
 #define OPS_LOG_W(OPS_DESC, ...) OPS_INNER_ERR_STUB("EZ9999", OPS_DESC, __VA_ARGS__)
