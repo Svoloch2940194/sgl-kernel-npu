@@ -199,25 +199,6 @@ function build_attentions_kernels()
     ./build.sh
 }
 
-function create_deepep_cmake()
-{
-    cd csrc || exit
-    chmod +x deepep_cmake_build.sh
-    chmod +x deepep/build.sh
-    chmod +x deepep/compile_ascend_proj.sh
-    echo "${FUNCNAME[0]}:./deepep_cmake_build.sh all $SOC_VERSION"
-    ./deepep_cmake_build.sh all $SOC_VERSION
-
-    if [[ "$BUILD_DEEPEP_OPS" == "ON" ]]; then
-        echo "./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep"
-        bash ./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep
-    else
-        echo "./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep2"
-        bash ./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep2
-    fi
-    cd -
-}
-
 function make_deepep_package()
 {
     cd python/deep_ep || exit
@@ -257,7 +238,6 @@ function make_attentions_package() {
 
 function main()
 {
-    create_deepep_cmake
     build_kernels
     build_attentions_kernels
     build_deepep_kernels
