@@ -141,34 +141,22 @@ function build_kernels()
     cd -
 }
 
-function build_deepep_kernels()
+function create_deepep_cmake()
 {
-    if [[ "$ONLY_BUILD_DEEPEP_ADAPTER_MODULE" == "ON" ]]; then return 0; fi
-    if [[ "$BUILD_DEEPEP_MODULE" != "ON" ]]; then return 0; fi
+    cd csrc || exit
+    chmod +x deepep_cmake_build.sh
+    chmod +x deepep/build.sh
+    chmod +x deepep/compile_ascend_proj.sh
+    echo "${FUNCNAME[0]}:./deepep_cmake_build.sh all $SOC_VERSION"
+    ./deepep_cmake_build.sh all $SOC_VERSION
 
     if [[ "$BUILD_DEEPEP_OPS" == "ON" ]]; then
-        KERNEL_DIR="csrc/deepep/ops"
+        echo "./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep"
+        bash ./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep
     else
-        KERNEL_DIR="csrc/deepep/ops2"
+        echo "./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep2"
+        bash ./deepep/compile_ascend_proj.sh ./deepep $SOC_VERSION deepep2
     fi
-    CUSTOM_OPP_DIR="${CURRENT_DIR}/python/deep_ep/deep_ep"
-
-    cd "$KERNEL_DIR" || exit
-
-    chmod +x build.sh
-    chmod +x cmake/util/gen_ops_filter.sh
-    ./build.sh
-
-    custom_opp_file=$(find ./build_out -maxdepth 1 -type f -name "custom_opp*.run")
-    if [ -z "$custom_opp_file" ]; then
-        echo "can not find run package"
-        exit 1
-    else
-        echo "find run package: $custom_opp_file"
-        chmod +x "$custom_opp_file"
-    fi
-    rm -rf "$CUSTOM_OPP_DIR"/vendors
-    ./build_out/custom_opp_*.run --install-path=$CUSTOM_OPP_DIR
     cd -
 }
 
@@ -240,7 +228,7 @@ function main()
 {
     build_kernels
     build_attentions_kernels
-    build_deepep_kernels
+    create_deepep_cmake
     if pip3 show wheel;then
         echo "wheel has been installed"
     else
