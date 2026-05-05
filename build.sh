@@ -258,9 +258,9 @@ function make_attentions_package() {
 function main()
 {
     create_deepep_cmake
-    build_attentions_kernels
     build_kernels
     build_deepep_kernels
+    build_attentions_kernels
     if pip3 show wheel;then
         echo "wheel has been installed"
     else
