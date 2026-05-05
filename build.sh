@@ -242,6 +242,7 @@ function build_attentions_kernels()
 
     chmod +x build.sh
     ./build.sh
+    cd -
 }
 
 function make_attentions_package() {
