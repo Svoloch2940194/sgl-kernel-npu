@@ -272,10 +272,9 @@ private:
         AscendC::PipeBarrier<PIPE_V>();
         inQueueW_.FreeTensor(wLocal);
 
-        
         Mul(wTmpTensor, xDup, wTmpTensor, MASK_COUNT, blockReduceRepeatCount, dotProductParams_);
         AscendC::PipeBarrier<PIPE_V>();
-        
+
         if (reqLoRARank_ == LORA_RANK_8) {
             BlockReduceSum(yLocal[progress], wTmpTensor, blockReduceRepeatCount, MASK_COUNT,
                            reduceSumParams_.dstRepStride, reduceSumParams_.srcBlkStride, reduceSumParams_.srcRepStride);
