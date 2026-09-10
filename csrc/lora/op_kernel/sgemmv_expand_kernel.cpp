@@ -83,7 +83,10 @@ public:
         sliceOffsetsGm_.SetGlobalBuffer(reinterpret_cast<__gm__ int32_t *>(sliceOffsets), sliceOffsetsSize);
 
         pipe_->InitBuffer(inQueueX_, 1, NUM_ELEMENTS_PER_REPEAT * sizeof(X_T));
-        pipe_->InitBuffer(inQueueW_, BUFFER_NUM, W_IN_TILE_NUM_ELEMENTS * 2 * sizeof(W_T)); // because block size is 32, type of W_T is float16 = 16 => we need x2 memory in buffer
+        pipe_->InitBuffer(
+            inQueueW_, BUFFER_NUM,
+            W_IN_TILE_NUM_ELEMENTS * 2 *
+                sizeof(W_T));  // because block size is 32, type of W_T is float16 = 16 => we need x2 memory in buffer
         pipe_->InitBuffer(inQueueY_, BUFFER_NUM, Y_OUT_TILE_NUM_ELEMENTS * sizeof(Y_T));
         pipe_->InitBuffer(outQueueY_, BUFFER_NUM, Y_OUT_TILE_NUM_ELEMENTS * sizeof(Y_T));
 
