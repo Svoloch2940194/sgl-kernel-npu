@@ -140,7 +140,8 @@ class TestLoraKernels(unittest.TestCase):
         actual_output_cpu = actual_output.to(device="cpu")
 
         max_value, max_index = (actual_output_cpu - expect_output).max(dim=1)
-        
+
+        print(max_lora_rank)
         print(max_value, max_index)
         print(torch.gather(actual_output_cpu, dim=1, index=max_index.unsqueeze(1)))
         print(torch.gather(expect_output, dim=1, index=max_index.unsqueeze(1)))
