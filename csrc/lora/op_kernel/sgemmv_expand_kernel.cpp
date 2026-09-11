@@ -249,7 +249,6 @@ private:
         AscendC::LocalTensor<float> yLocal = tmpBufferY_.Get<float>();
         AscendC::LocalTensor<Y_T> yInLocal = inQueueY_.DeQue<Y_T>();
         AscendC::LocalTensor<float> yInLocalFP32 = inBufferY_.Get<float>();
-
         Cast(yInLocalFP32, yInLocal, AscendC::RoundMode::CAST_NONE, numElements);
         AscendC::PipeBarrier<PIPE_V>();
         inQueueY_.FreeTensor(yInLocal);
