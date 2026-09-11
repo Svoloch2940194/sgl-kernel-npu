@@ -252,6 +252,7 @@ private:
         Cast(yInLocalFP32, yInLocal, AscendC::RoundMode::CAST_NONE, numElements);
         AscendC::PipeBarrier<PIPE_V>();
         inQueueY_.FreeTensor(yInLocal);
+
         Add(yLocal, yLocal, yInLocalFP32, numElements);
         AscendC::PipeBarrier<PIPE_V>();
 
