@@ -47,7 +47,7 @@ public:
     static constexpr int32_t MASK_COUNT = NUM_BYTES_PER_REPEAT / sizeof(float);
     // Refer to numOutputElementsPerInputTile_ initialization for the constraints on the following constants.
     static constexpr int32_t W_IN_TILE_NUM_ELEMENTS = 8192;
-    static constexpr int32_t Y_OUT_TILE_NUM_ELEMENTS = 2048;
+    static constexpr int32_t Y_OUT_TILE_NUM_ELEMENTS = 4096;
     static constexpr int32_t BLOCK_REDUCE_NUM_REPEATS = W_IN_TILE_NUM_ELEMENTS / NUM_ELEMENTS_PER_REPEAT;
     // BlockReduceSum would generate(BLOCK_REDUCE_NUM_REPEATS * NUM_BLOCKS_PER_REPEAT)floats.
     // So need to read them all and apply PairReduceSum
